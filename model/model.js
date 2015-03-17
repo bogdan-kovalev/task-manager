@@ -77,7 +77,7 @@ function TaskService(storage) {
 		return task;
 
 		function binarySearch(values, target, start, end) {
-			if (start > end) { return undefined; } //does not exist
+			if (start > end) { return null; } //does not exist
 
 			var middle = Math.floor((start + end) / 2);
 			var value = values[middle];
