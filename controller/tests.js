@@ -46,15 +46,15 @@ ControllerTests = {
             var task = new Task(description, author);
             taskService.addTask(task);
 
-            var newDescription = "Drive my car";
+            var expected = "Drive my car";
 
-            $(document).trigger("description-changed", {taskID: task.getID(), newDescription: newDescription});
+            $(document).trigger("description-changed", {taskID: task.getID(), newDescription: expected});
 
             var actual = taskService.getTaskByID(task.getID()).getDescription();
-            if (actual == newDescription) {
+            if (actual == expected) {
                 console.log("testDescriptionChanged() - Passed!");
             } else {
-                console.log("testDescriptionChanged() - Failed! actual: " + actual + "expected: " + newDescription);
+                console.log("testDescriptionChanged() - Failed! actual: " + actual + " expected: " + expected);
             }
         }
 
@@ -64,15 +64,15 @@ ControllerTests = {
             var task = new Task(description, author);
             taskService.addTask(task);
 
-            var assignee = "John Doe";
+            var expected = "John Doe";
 
-            $(document).trigger("task-assigned", {task: task.getID(), assignee: assignee});
+            $(document).trigger("task-assigned", {task: task.getID(), user: expected});
 
             var actual = taskService.getTaskByID(task.getID()).getAssignee();
-            if (actual == assignee) {
+            if (actual == expected) {
                 console.log("testTaskAssigned() - Passed!");
             } else {
-                console.log("testTaskAssigned() - Failed! actual: " + actual + "expected: " + assignee);
+                console.log("testTaskAssigned() - Failed! actual: " + actual + " expected: " + expected);
             }
         }
     }

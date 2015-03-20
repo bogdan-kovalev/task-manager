@@ -21,7 +21,7 @@ Controller = {
         }
 
         function handleTaskAssigned(event, data) {
-            taskService.assignTask(data.taskID, data.assignee);
+            taskService.assignTask(data.taskID, data.user);
         }
     }
 }
