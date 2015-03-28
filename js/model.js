@@ -47,7 +47,16 @@ function Task(description, author) {
         this._status = status;
     }
 
-    return this;
+    __proto__.getDTO = function () {
+        var data = {
+            description: clone(this._description),
+            author: clone(this._author),
+            assignee: clone(this._assignee),
+            creationDate: new Date(this.timestamp),
+            status: clone(this._status)
+        };
+        return data;
+    }
 }
 
 function Model(storage) {
