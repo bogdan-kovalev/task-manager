@@ -7,11 +7,11 @@ function checkTask(task) {
 }
 
 function isValidDescription(d) {
-    return (d && d != "") ? true : false;
+    return (d && /\S/.test(d)) ? true : false;
 }
 
 function isValidAuthor(a) {
-    return (a && a != "") ? true : false;
+    return (a && /\S/.test(a)) ? true : false;
 }
 
 function InvalidTaskError(message) {

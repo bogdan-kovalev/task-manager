@@ -39,17 +39,16 @@ function Widget() {
         var newTask = new TaskItem(description, "Bogdan");
 
         $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
+        $('.' + that.addTaskTxtFieldClass).val('');
     });
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         $('#taskItemTmpl').tmpl([data.task]).appendTo('.' + that.widgetClass);
-        $('.' + that.addTaskTxtFieldClass).val('');
     });
 }
 
 function Controller() {
     $(eventBus).on(Event.UI_NEW_TASK, function (event, data) {
-        // todo controller validation
         $(eventBus).trigger(Event.MODEL_ADD_TASK, data);
     });
 
@@ -63,9 +62,13 @@ function Model(storage) {
     var that = this;
 
     $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
-        that.addTask(data.task);
-        var taskDTO = data.task.getDTO();
-        $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
+        try {
+            that.addTask(data.task);
+            var taskDTO = data.task.getDTO();
+            $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
+        } catch (e) {
+            alert(e.message);
+        }
     });
 
     var __proto__ = Model.prototype;
@@ -73,7 +76,6 @@ function Model(storage) {
     __proto__.addTask = function (task) {
         var description = task.getDescription();
         var author = task.getAuthor();
-
         checkTask(task); // throws InvalidTaskException
         this._storage.push(task);
     }

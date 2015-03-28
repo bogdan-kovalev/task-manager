@@ -10,7 +10,7 @@
 
     <style type="text/css">
         .taskItem {
-            border: solid 1px rgba(17, 68, 92, 0.85);
+            border: solid 1px #11445c;
             padding: 4px;
             margin: 2px;
         }
@@ -19,7 +19,9 @@
     <script id="widgetTmpl" type="text/x-jquery-tmpl">
         <div class="widget ${widgetClass}">
             <input class="task-txt ${addTaskTxtFieldClass}"/>
-            <input class="btn ${addTaskBtnClass}" type="button" value="New task"/>
+            <a class="btn ${addTaskBtnClass}">
+                <span>New task</span>
+            </a>
         </div>
     </script>
 
