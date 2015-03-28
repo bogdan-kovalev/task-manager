@@ -29,7 +29,7 @@ function Widget() {
     var id = Math.floor(Math.random() * 1000);
 
     this.widgetClass = 'widget-' + id;
-    this.addTaskTxtFieldClass = 'add-task-txtfield-' + id;
+    this.addTaskTxtFieldClass = 'new-task-txt-' + id;
     this.addTaskBtnClass = 'add-task-btn-' + id;
 
     $('#widgetTmpl').tmpl([this]).appendTo('body');
