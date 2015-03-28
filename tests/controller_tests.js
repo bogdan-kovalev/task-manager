@@ -14,7 +14,7 @@ ControllerTests = {
         function testTaskAdded() {
             var description = "Wash my car";
             var author = "Bogdan Kovalev";
-            var task = new Task(description, author);
+            var task = new TaskItem(description, author);
 
             $(document).trigger("task-added", task);
 
@@ -28,7 +28,7 @@ ControllerTests = {
         function testTaskDeleted() {
             var description = "Wash my car";
             var author = "Bogdan Kovalev";
-            var task = new Task(description, author);
+            var task = new TaskItem(description, author);
             taskService.addTask(task);
 
             $(document).trigger("task-deleted", task.getID());
@@ -43,7 +43,7 @@ ControllerTests = {
         function testDescriptionChanged() {
             var description = "Wash my car";
             var author = "Bogdan Kovalev";
-            var task = new Task(description, author);
+            var task = new TaskItem(description, author);
             taskService.addTask(task);
 
             var expected = "Drive my car";
@@ -61,7 +61,7 @@ ControllerTests = {
         function testTaskAssigned() {
             var description = "Wash my car";
             var author = "Bogdan Kovalev";
-            var task = new Task(description, author);
+            var task = new TaskItem(description, author);
             taskService.addTask(task);
 
             var expected = "John Doe";

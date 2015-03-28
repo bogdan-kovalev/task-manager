@@ -1,3 +1,24 @@
+function checkTask(task) {
+    if (!isValidDescription(task.getDescription())) {
+        throw new InvalidTaskError("Description is undefined");
+    } else if (!isValidAuthor(task.getAuthor())) {
+        throw new InvalidTaskError("Author is undefined");
+    }
+}
+
+function isValidDescription(d) {
+    return (d && d != "") ? true : false;
+}
+
+function isValidAuthor(a) {
+    return (a && a != "") ? true : false;
+}
+
+function InvalidTaskError(message) {
+    this.name = "InvalidTask";
+    this.message = message;
+}
+
 function binarySearch(values, target, start, end) {
     if (start > end) {
         return null;
