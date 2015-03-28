@@ -8,7 +8,8 @@ Event = {
     UI_NEW_TASK: "ui-new-task",
     UI_ADD_TASK: "ui-add-task",
     MODEL_ADD_TASK: "model-add-task",
-    MODEL_TASK_ADDED: "model-task-added"
+    MODEL_TASK_ADDED: "model-task-added",
+    MODEL_TASK_RESTORED: "model-task-restored"
 };
 
 var eventBus = {};
@@ -20,11 +21,12 @@ $(function () {
         window.localStorage[storageKey] = "";
     }
 
-    var model = new Model(storageKey);
+    new Widget();
 
     var controller = new Controller();
 
-    new Widget();
+    var model = new Model(storageKey);
+
 });
 
 function Widget() {
@@ -60,10 +62,14 @@ function Controller() {
     $(eventBus).on(Event.MODEL_TASK_ADDED, function (event, data) {
         $(eventBus).trigger(Event.UI_ADD_TASK, data);
     });
+
+    $(eventBus).on(Event.MODEL_TASK_RESTORED, function (event, data) {
+        $(eventBus).trigger(Event.UI_ADD_TASK, data);
+    });
 }
 
 function Model(storageKey) {
-
+    var storage = [];
     var that = this;
 
     try {
@@ -73,7 +79,10 @@ function Model(storageKey) {
     }
 
     this._tasksIDs.forEach(function (entry) {
-        console.log(window.localStorage.getItem(entry));
+        var task = new TaskItem();
+        task.restoreFrom(JSON.parse(window.localStorage.getItem(entry)));
+        var taskDTO = task.getDTO();
+        $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
     });
 
     $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
@@ -106,7 +115,6 @@ function Model(storageKey) {
     __proto__.deleteTask = function (taskID) {
         var task = this.getTaskByID(taskID);
         if (task) {
-
             this._tasksIDs.pop(task.getID());
             window.localStorage.setItem(storageKey, JSON.stringify(this._tasksIDs));
             window.localStorage.removeItem(task.getID());
@@ -172,7 +180,7 @@ function TaskItem(description, author) {
     }
 
     __proto__.getCreationDate = function () {
-        return new Date(this.timestamp);
+        return new Date(this._timestamp);
     }
 
     __proto__.getID = function () {
@@ -197,5 +205,13 @@ function TaskItem(description, author) {
             status: this.getStatus()
         };
         return data;
+    }
+
+    __proto__.restoreFrom = function (data) {
+        this._description = data._description;
+        this._author = data._author;
+        this._assignee = data._assignee;
+        this._timestamp = data._timestamp;
+        this._status = data._status;
     }
 }
