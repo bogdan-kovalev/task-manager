@@ -16,7 +16,7 @@ ModelTests = {
         // Model tests
         function testAddValidTask() {
             var t = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
 
             taskService.addTask(t);
 
@@ -31,7 +31,7 @@ ModelTests = {
 
         function testAddTaskWithInvalidDescription() {
             var t = new Task("", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
 
             try {
                 taskService.addTask(t);
@@ -45,7 +45,7 @@ ModelTests = {
 
         function testAddTaskWithInvalidAuthor() {
             var t = new Task("Wash my car", "");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
 
             try {
                 taskService.addTask(t);
@@ -58,7 +58,7 @@ ModelTests = {
         }
 
         function testFetchTasks() {
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
             var task1 = new Task("Wash my car", "Bogdan");
             var task2 = new Task("Drive my car", "Arthur");
 
@@ -76,7 +76,7 @@ ModelTests = {
 
         function testDeleteTask() {
             var t = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
 
             taskService.addTask(t);
             taskService.deleteTask(t.getID());
@@ -90,7 +90,7 @@ ModelTests = {
 
         function testGetTaskByID() {
             var expected = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
 
             taskService.addTask(expected);
             taskService.addTask(new Task("Wash my car", "Bogdan Kovalev"));
@@ -107,7 +107,7 @@ ModelTests = {
 
         function testAssignTask() {
             var t = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
             taskService.addTask(t);
             taskService.assignTask(t.getID(), "Arthur Zagorskiy");
 
@@ -120,7 +120,7 @@ ModelTests = {
 
         function testChangeTaskDescription() {
             var t = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
             taskService.addTask(t);
             var expected = "Drive my car";
             taskService.changeTaskDescription(t.getID(), "Drive my car");
@@ -134,7 +134,7 @@ ModelTests = {
 
         function testChangeTaskStatus() {
             var t = new Task("Wash my car", "Bogdan Kovalev");
-            var taskService = new TaskService([]);
+            var taskService = new Model([]);
             taskService.addTask(t);
             taskService.changeTaskStatus(t.getID(), Status.FINISHED);
 

@@ -46,12 +46,14 @@ function Task(description, author) {
     __proto__.setStatus = function (status) {
         this._status = status;
     }
+
+    return this;
 }
 
-function TaskService(storage) {
+function Model(storage) {
     this._storage = storage;
 
-    var __proto__ = TaskService.prototype;
+    var __proto__ = Model.prototype;
 
     __proto__.addTask = function (task) {
         var description = task.getDescription();
@@ -75,23 +77,6 @@ function TaskService(storage) {
     __proto__.getTaskByID = function (id) {
         var task = binarySearch(this._storage, id, 0, this._storage.length - 1);
         return task;
-
-        function binarySearch(values, target, start, end) {
-            if (start > end) {
-                return null;
-            } //does not exist
-
-            var middle = Math.floor((start + end) / 2);
-            var value = values[middle];
-
-            if (value.getID() > target) {
-                return binarySearch(values, target, start, middle - 1);
-            }
-            if (value.getID() < target) {
-                return binarySearch(values, target, middle + 1, end);
-            }
-            return value; //found!
-        }
     }
 
     __proto__.assignTask = function (taskID, user) {
