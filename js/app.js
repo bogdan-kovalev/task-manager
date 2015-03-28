@@ -17,11 +17,10 @@ var eventBus = {};
 $(function () {
     var storageKey = 'task-list-local-storage';
     if (window.localStorage[storageKey] == undefined) {
-        alert("no storage");
         window.localStorage[storageKey] = "";
     }
 
-    new Widget();
+    var widget = new Widget();
 
     var controller = new Controller();
 
@@ -69,7 +68,7 @@ function Controller() {
 }
 
 function Model(storageKey) {
-    var storage = [];
+    var storage = []; // todo heap storage
     var that = this;
 
     try {
