@@ -36,24 +36,25 @@ function Widget() {
 
     $('.' + this.addTaskBtnClass).on('click', function () {
         var description = $('.' + that.addTaskTxtFieldClass).val();
-        var task = new TaskItem(description, "Bogdan");
+        var newTask = new TaskItem(description, "Bogdan");
 
-        $(eventBus).trigger(Event.UI_NEW_TASK, {newTask: task});
+        $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
     });
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
-        $('#taskItemTmpl').tmpl([data.taskDTO]).appendTo('.' + that.widgetClass);
+        $('#taskItemTmpl').tmpl([data.task]).appendTo('.' + that.widgetClass);
+        $('.' + that.addTaskTxtFieldClass).val('');
     });
 }
 
 function Controller() {
     $(eventBus).on(Event.UI_NEW_TASK, function (event, data) {
         // todo controller validation
-        $(eventBus).trigger(Event.MODEL_ADD_TASK, {validatedTask: data.newTask});
+        $(eventBus).trigger(Event.MODEL_ADD_TASK, data);
     });
 
     $(eventBus).on(Event.MODEL_TASK_ADDED, function (event, data) {
-        $(eventBus).trigger(Event.UI_ADD_TASK, {taskDTO: data.taskDTO});
+        $(eventBus).trigger(Event.UI_ADD_TASK, data);
     });
 }
 
@@ -62,8 +63,9 @@ function Model(storage) {
     var that = this;
 
     $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
-        that.addTask(data.validatedTask);
-        $(eventBus).trigger(Event.MODEL_TASK_ADDED, {taskDTO: data.validatedTask.getDTO()});
+        that.addTask(data.task);
+        var taskDTO = data.task.getDTO();
+        $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
     });
 
     var __proto__ = Model.prototype;
