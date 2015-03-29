@@ -9,6 +9,13 @@
     <script type="text/javascript" src="./js/app.js"></script>
 
     <style type="text/css">
+        .btn {
+            border: dashed 1px rgba(113, 138, 208, 0.66);
+        }
+
+        .delete-btn {
+            color: red;
+        }
         .widget {
             border: solid 2px rgba(113, 138, 208, 0.66);
             padding: 4px;
@@ -32,9 +39,16 @@
     </script>
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
-        <div class="task-item ${id}">
-            <span>${description}</span>
+        <div class="task-item" id="${task.id}">
+            <span>${task.description}</span>
         </div>
+    </script>
+
+    <script id="deleteTaskBtnTmpl" type="text/x-jquery-tmpl">
+        <a class="btn delete-btn">
+            <span>Delete</span>
+        </a>
+
     </script>
 </head>
 <body>

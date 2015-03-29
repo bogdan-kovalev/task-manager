@@ -7,6 +7,7 @@ Status = {
 Event = {
     UI_NEW_TASK: "ui-new-task",
     UI_ADD_TASK: "ui-add-task",
+    UI_DELETE_TASK: "ui-delete-task",
     MODEL_ADD_TASK: "model-add-task",
     MODEL_TASK_ADDED: "model-task-added",
     MODEL_TASK_RESTORED: "model-task-restored"
@@ -37,7 +38,7 @@ function Widget() {
 
     $('#widgetTmpl').tmpl([this]).appendTo('body');
 
-    $('.' + this.addTaskBtnClass).on('click', function () {
+    $('.' + this.addTaskBtnClass).on('click', function (event) {
         var textField = $('.' + that.addTaskTxtFieldClass);
         var description = textField.val();
         var newTask = new TaskItem(description, "Bogdan");
@@ -47,7 +48,23 @@ function Widget() {
     });
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
-        $('#taskItemTmpl').tmpl([data.task]).appendTo('.' + that.widgetClass);
+        $('#taskItemTmpl').tmpl([data]).appendTo('.' + that.widgetClass);
+
+        // place were task item content appends (buttons etc.)
+        var needDeleteButton = true;
+        if (needDeleteButton) {
+            $('#deleteTaskBtnTmpl').tmpl([{}]).appendTo('#' + data.task.id);
+
+            var deleteBtnSelector = $('#' + data.task.id + " .delete-btn");
+
+            deleteBtnSelector.on("click", function (event) {
+                //var taskID = +event.currentTarget.parentElement.id;
+                var taskID = data.task.id;
+                $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
+            });
+        }
+        // end of place were task item content appends (buttons etc.)
+
     });
 }
 
