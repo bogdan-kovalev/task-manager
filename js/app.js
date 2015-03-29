@@ -8,9 +8,12 @@ Event = {
     UI_NEW_TASK: "ui-new-task",
     UI_ADD_TASK: "ui-add-task",
     UI_DELETE_TASK: "ui-delete-task",
+    UI_TASK_DELETED: "ui-task-deleted",
     MODEL_ADD_TASK: "model-add-task",
     MODEL_TASK_ADDED: "model-task-added",
-    MODEL_TASK_RESTORED: "model-task-restored"
+    MODEL_TASK_RESTORED: "model-task-restored",
+    MODEL_DELETE_TASK: "model-delete-task",
+    MODEL_TASK_DELETED: "model-task-deleted"
 };
 
 var eventBus = {};
@@ -23,6 +26,7 @@ $(function () {
     new Controller();
 
     var data = tryRestoreFromLocal(storageKey);
+    console.log(data);
     new TaskService(data);
 
 });
@@ -64,7 +68,10 @@ function Widget() {
             });
         }
         // end of place were task item content appends (buttons etc.)
+    });
 
+    $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
+        $("#" + data.taskID).remove();
     });
 }
 
@@ -79,6 +86,14 @@ function Controller() {
 
     $(eventBus).on(Event.MODEL_TASK_RESTORED, function (event, data) {
         $(eventBus).trigger(Event.UI_ADD_TASK, data);
+    });
+
+    $(eventBus).on(Event.UI_DELETE_TASK, function (event, data) {
+        $(eventBus).trigger(Event.MODEL_DELETE_TASK, data);
+    });
+
+    $(eventBus).on(Event.MODEL_TASK_DELETED, function (event, data) {
+        $(eventBus).trigger(Event.UI_TASK_DELETED, data);
     });
 }
 
@@ -103,6 +118,11 @@ function TaskService(data) {
         }
     });
 
+    $(eventBus).on(Event.MODEL_DELETE_TASK, function (event, data) {
+        that.deleteTask(data.taskID);
+        $(eventBus).trigger(Event.MODEL_TASK_DELETED, data);
+    });
+
     var __proto__ = TaskService.prototype;
 
     __proto__.addTask = function (task) {
@@ -123,9 +143,11 @@ function TaskService(data) {
     __proto__.deleteTask = function (taskID) {
         var task = this.getTaskByID(taskID);
         if (task) {
-            this._tasksIDs.pop(task.getID());
+            remove(this._tasksIDs, taskID);
+            remove(this._tasks, task);
+
             window.localStorage.setItem(storageKey, JSON.stringify(this._tasksIDs));
-            window.localStorage.removeItem(task.getID());
+            window.localStorage.removeItem(taskID);
         }
     }
 
