@@ -8,24 +8,47 @@
     <script type="text/javascript" src="./js/util.js"></script>
     <script type="text/javascript" src="./js/app.js"></script>
 
+    <style>
+        input.inline-edit {
+            /* Eliminate borders and padding */
+            border: none;
+            padding: 5px;
+            margin: 2px 10px 2px 10px;
+        }
+
+        /* Add interaction cues on hover and focus */
+        input.inline-edit:hover,
+        input.inline-edit:focus {
+            border: solid 1px #4dcccb;
+        }
+    </style>
+
     <script id="widgetTmpl" type="text/x-jquery-tmpl">
         <div class="widget ${widgetClass}">
-            <input class="task-txt ${addTaskTxtFieldClass}"/>
-            <a class="btn ${addTaskBtnClass}">
-                <span>New task</span>
-            </a>
+            <div class="new-task">
+                <input class="task-txt ${addTaskTxtFieldClass}"/>
+                <a class="btn ${addTaskBtnClass}">
+                    <span>New task</span>
+                </a>
+            </div>
         </div>
     </script>
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item" id="${task.id}">
-            <span>${task.description}</span>
+            <input class="inline-edit" value="${task.description}"/>
         </div>
     </script>
 
     <script id="deleteTaskBtnTmpl" type="text/x-jquery-tmpl">
         <a class="btn delete-btn">
             <span>Delete</span>
+        </a>
+    </script>
+
+    <script id="saveTaskBtnTmpl" type="text/x-jquery-tmpl">
+        <a class="btn save-btn">
+            <span>Save</span>
         </a>
 
     </script>

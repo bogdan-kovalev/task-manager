@@ -53,7 +53,7 @@ function Widget() {
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
-        item.fadeIn(500);
+        item.fadeIn(300);
         item.appendTo('.' + that.widgetClass);
 
         // place were task item content appends (buttons etc.)
@@ -67,6 +67,21 @@ function Widget() {
                 //var taskID = +event.currentTarget.parentElement.id;
                 var taskID = data.task.id;
                 $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
+            });
+        }
+
+        var needSaveButton = true;
+        if (needSaveButton) {
+            var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
+            saveBtn.hide();
+            // save button append to item
+            saveBtn.appendTo('#' + data.task.id);
+            $('#' + data.task.id + " .inline-edit").on('change', function () {
+                saveBtn.show();
+            });
+            $('#' + data.task.id + " .save-btn").on("click", function (event) {
+                console.log(event);
+                $(this).hide();
             });
         }
         // end of place were task item content appends (buttons etc.)
