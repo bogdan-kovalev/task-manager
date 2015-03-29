@@ -74,12 +74,25 @@ function Widget() {
         if (needSaveButton) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-            $('#' + data.task.id + " .inline-edit").on('change', function () {
+            $('#' + data.task.id + " .inline-edit").focus(function () {
                 saveBtn.appendTo('#' + data.task.id);
                 $('#' + data.task.id + " .save-btn").on("click", function (event) {
                     console.log(event);
                     $(this).remove();
                 });
+                $('#' + data.task.id + " .save-btn").hover(
+                    function () {
+                        $('#' + data.task.id + " .inline-edit").unbind('focusout');
+                    },
+                    function () {
+                        $('#' + data.task.id + " .inline-edit").focusout(function () {
+                            $('#' + data.task.id + " .save-btn").remove();
+                        });
+                    }
+                );
+            });
+            $('#' + data.task.id + " .inline-edit").focusout(function () {
+                $('#' + data.task.id + " .save-btn").remove();
             });
         }
         // end of place were task item content appends (buttons etc.)
