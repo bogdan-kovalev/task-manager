@@ -2,7 +2,7 @@ ControllerTests = {
 
     run: function () {
         console.log("\nController tests\n");
-        var taskService = new Model([]);
+        var taskService = new TaskService([]);
         Controller.init(taskService);
 
         testTaskAdded();

@@ -1,3 +1,23 @@
+function tryRestoreFromLocal(localStorageKey) {
+    var restoredTasks = [];
+    var localTasksIDs = [];
+    if (window.localStorage[localStorageKey] == undefined) {
+        window.localStorage[localStorageKey] = "";
+    } else {
+        try {
+            localTasksIDs = JSON.parse(window.localStorage.getItem(localStorageKey));
+            localTasksIDs.forEach(function (entry) {
+                var task = new TaskItem();
+                task.restoreFrom(JSON.parse(window.localStorage.getItem(entry)));
+                restoredTasks.push(task);
+            });
+        } catch (e) {
+            //ignored
+        }
+    }
+    return {tasksIDs: localTasksIDs, tasks: restoredTasks};
+}
+
 function checkTask(task) {
     if (!isValidDescription(task.getDescription())) {
         throw new InvalidTaskError("Description is undefined");
@@ -19,19 +39,19 @@ function InvalidTaskError(message) {
     this.message = message;
 }
 
-function binarySearch(values, target, start, end) {
+function binarySearch(tasks, id, start, end) {
     if (start > end) {
         return null;
     } //does not exist
 
     var middle = Math.floor((start + end) / 2);
-    var value = values[middle];
+    var value = tasks[middle];
 
-    if (value.getID() > target) {
-        return binarySearch(values, target, start, middle - 1);
+    if (value.getID() > id) {
+        return binarySearch(tasks, id, start, middle - 1);
     }
-    if (value.getID() < target) {
-        return binarySearch(values, target, middle + 1, end);
+    if (value.getID() < id) {
+        return binarySearch(tasks, id, middle + 1, end);
     }
     return value; //found!
 }

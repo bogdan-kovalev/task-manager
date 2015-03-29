@@ -13,18 +13,16 @@ Event = {
 };
 
 var eventBus = {};
+var storageKey = 'task-list-local-storage';
 
 $(function () {
-    var storageKey = 'task-list-local-storage';
-    if (window.localStorage[storageKey] == undefined) {
-        window.localStorage[storageKey] = "";
-    }
 
-    var widget = new Widget();
+    new Widget();
 
-    var controller = new Controller();
+    new Controller();
 
-    var model = new Model(storageKey);
+    var data = tryRestoreFromLocal(storageKey);
+    new TaskService(data);
 
 });
 
@@ -67,19 +65,13 @@ function Controller() {
     });
 }
 
-function Model(storageKey) {
-    var storage = []; // todo heap storage
+function TaskService(data) {
+    this._tasksIDs = data.tasksIDs;
+    this._tasks = data.tasks;
     var that = this;
 
-    try {
-        this._tasksIDs = JSON.parse(window.localStorage.getItem(storageKey));
-    } catch (e) {
-        this._tasksIDs = [];
-    }
-
-    this._tasksIDs.forEach(function (entry) {
-        var task = new TaskItem();
-        task.restoreFrom(JSON.parse(window.localStorage.getItem(entry)));
+    //restoring
+    this._tasks.forEach(function (task) {
         var taskDTO = task.getDTO();
         $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
     });
@@ -94,21 +86,21 @@ function Model(storageKey) {
         }
     });
 
-    var __proto__ = Model.prototype;
+    var __proto__ = TaskService.prototype;
 
     __proto__.addTask = function (task) {
-        var description = task.getDescription();
-        var author = task.getAuthor();
+        var id = task.getID();
         checkTask(task); // throws InvalidTaskException
 
-        this._tasksIDs.push(task.getID());
+        this._tasksIDs.push(id);
+        this._tasks.push(task);
 
         window.localStorage.setItem(storageKey, JSON.stringify(this._tasksIDs));
-        window.localStorage.setItem(task.getID(), JSON.stringify(task));
+        window.localStorage.setItem(id, JSON.stringify(task));
     }
 
     __proto__.fetchTasks = function () {
-
+        return this._tasks;
     }
 
     __proto__.deleteTask = function (taskID) {
@@ -121,7 +113,7 @@ function Model(storageKey) {
     }
 
     __proto__.getTaskByID = function (id) {
-        return window.localStorage.getItem(id);
+        return binarySearch(this._tasks, id, 0, this._tasks.length);
     }
 
     __proto__.assignTask = function (taskID, user) {
