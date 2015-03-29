@@ -52,7 +52,9 @@ function Widget() {
     });
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
-        $('#taskItemTmpl').tmpl([data]).appendTo('.' + that.widgetClass);
+        var item = $('#taskItemTmpl').tmpl([data]);
+        item.fadeIn(500);
+        item.appendTo('.' + that.widgetClass);
 
         // place were task item content appends (buttons etc.)
         var needDeleteButton = true;
@@ -71,7 +73,9 @@ function Widget() {
     });
 
     $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
-        $("#" + data.taskID).remove();
+        $("#" + data.taskID).fadeOut(200, function () {
+            $(this).remove();
+        });
     });
 }
 
