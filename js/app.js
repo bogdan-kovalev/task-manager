@@ -73,15 +73,13 @@ function Widget() {
         var needSaveButton = true;
         if (needSaveButton) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
-            saveBtn.hide();
-            // save button append to item
-            saveBtn.appendTo('#' + data.task.id);
+
             $('#' + data.task.id + " .inline-edit").on('change', function () {
-                saveBtn.show();
-            });
-            $('#' + data.task.id + " .save-btn").on("click", function (event) {
-                console.log(event);
-                $(this).hide();
+                saveBtn.appendTo('#' + data.task.id);
+                $('#' + data.task.id + " .save-btn").on("click", function (event) {
+                    console.log(event);
+                    $(this).remove();
+                });
             });
         }
         // end of place were task item content appends (buttons etc.)
