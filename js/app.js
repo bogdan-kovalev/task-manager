@@ -71,6 +71,7 @@ function Widget() {
     });
 
     var cur;
+    var autowidth_disabled = false;
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
@@ -91,11 +92,13 @@ function Widget() {
         }
 
         $('#' + data.task.id + " .inline-edit").mouseenter(function () {
+            if (autowidth_disabled) return false;
             cur = this;
             this.style.width = ((this.value.length + 1) * 8) + 'px';
         });
 
         $('#' + data.task.id).mouseleave(function () {
+            if (autowidth_disabled) return false;
             cur.style.width = '0px'; //reset to min-width in css
         });
 
@@ -104,8 +107,11 @@ function Widget() {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
             $('#' + data.task.id + " .inline-edit").focus(function () {
+                autowidth_disabled = true;
                 saveBtn.appendTo('#' + data.task.id);
                 $('#' + data.task.id + " .save-btn").on("click", function (event) {
+                    autowidth_disabled = false;
+                    cur.style.width = '0px'; //reset to min-width in css
                     var description = $('#' + data.task.id + " .inline-edit").val();
                     $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {taskID: data.task.id, description: description});
                 });
@@ -120,6 +126,8 @@ function Widget() {
                     }
                 );
                 $(this).blur(function () {
+                    autowidth_disabled = false;
+                    cur.style.width = '0px'; //reset to min-width in css
                     $('#' + data.task.id + " .save-btn").remove();
                     $(this).unbind('blur');
                 });
