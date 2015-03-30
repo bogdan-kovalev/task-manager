@@ -73,7 +73,7 @@ function Widget() {
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
-        item.appendTo('.' + that.widgetClass);
+        item.appendTo('.' + that.widgetClass + ' .task-items-wrapper');
 
         // place were task item content appends (buttons etc.)
         var needDeleteButton = true;
