@@ -47,12 +47,27 @@ function Widget() {
     $('#widgetTmpl').tmpl([this]).appendTo('body');
 
     $('.' + this.addTaskBtnClass).on('click', function (event) {
+        if ($(this).hasClass("disabled")) {
+            console.log("disabled");
+            return false;
+        }
         var textField = $('.' + that.addTaskTxtFieldClass);
         var description = textField.val();
         var newTask = new TaskItem(description, "Bogdan");
 
         $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
         textField.val('');
+        $('.' + that.addTaskBtnClass).addClass("disabled");
+    });
+
+    $('.' + this.addTaskTxtFieldClass).keyup(function () {
+        if (isValidDescription($(this).val())) {
+            $('.' + that.addTaskBtnClass).removeClass("disabled");
+            console.log("disabled removed");
+        } else if (!$('.' + that.addTaskBtnClass).hasClass("disabled")) {
+            console.log("disabled");
+            $('.' + that.addTaskBtnClass).addClass("disabled");
+        }
     });
 
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
