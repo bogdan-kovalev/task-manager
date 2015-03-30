@@ -9,11 +9,15 @@ Event = {
     UI_ADD_TASK: "ui-add-task",
     UI_DELETE_TASK: "ui-delete-task",
     UI_TASK_DELETED: "ui-task-deleted",
+    UI_SAVE_DESCRIPTION: "ui-save-description",
+    UI_DESCRIPTION_SAVED: "ui-description-saved",
     MODEL_ADD_TASK: "model-add-task",
     MODEL_TASK_ADDED: "model-task-added",
     MODEL_TASK_RESTORED: "model-task-restored",
     MODEL_DELETE_TASK: "model-delete-task",
-    MODEL_TASK_DELETED: "model-task-deleted"
+    MODEL_TASK_DELETED: "model-task-deleted",
+    MODEL_CHANGE_DESCRIPTION: "model-change-description",
+    MODEL_DESCRIPTION_CHANGED: "model-description-changed"
 };
 
 var eventBus = {};
@@ -77,8 +81,8 @@ function Widget() {
             $('#' + data.task.id + " .inline-edit").focus(function () {
                 saveBtn.appendTo('#' + data.task.id);
                 $('#' + data.task.id + " .save-btn").on("click", function (event) {
-                    console.log(event);
-                    $(this).remove();
+                    var description = $('#' + data.task.id + " .inline-edit").val();
+                    $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {taskID: data.task.id, description: description});
                 });
                 $('#' + data.task.id + " .save-btn").hover(
                     function () {
@@ -90,10 +94,12 @@ function Widget() {
                         });
                     }
                 );
+                $(this).focusout(function () {
+                    $('#' + data.task.id + " .save-btn").remove();
+                    $(this).unbind('focusout');
+                });
             });
-            $('#' + data.task.id + " .inline-edit").focusout(function () {
-                $('#' + data.task.id + " .save-btn").remove();
-            });
+
         }
         // end of place were task item content appends (buttons etc.)
     });
@@ -102,6 +108,10 @@ function Widget() {
         $("#" + data.taskID).fadeOut(200, function () {
             $(this).remove();
         });
+    });
+
+    $(eventBus).on(Event.UI_DESCRIPTION_SAVED, function (event, data) {
+        $("#" + data.taskID + " .save-btn").remove();
     });
 }
 
@@ -124,6 +134,14 @@ function Controller() {
 
     $(eventBus).on(Event.MODEL_TASK_DELETED, function (event, data) {
         $(eventBus).trigger(Event.UI_TASK_DELETED, data);
+    });
+
+    $(eventBus).on(Event.UI_SAVE_DESCRIPTION, function (event, data) {
+        $(eventBus).trigger(Event.MODEL_CHANGE_DESCRIPTION, data);
+    });
+
+    $(eventBus).on(Event.MODEL_DESCRIPTION_CHANGED, function (event, data) {
+        $(eventBus).trigger(Event.UI_DESCRIPTION_SAVED, data);
     });
 }
 
@@ -151,6 +169,11 @@ function TaskService(data) {
     $(eventBus).on(Event.MODEL_DELETE_TASK, function (event, data) {
         that.deleteTask(data.taskID);
         $(eventBus).trigger(Event.MODEL_TASK_DELETED, data);
+    });
+
+    $(eventBus).on(Event.MODEL_CHANGE_DESCRIPTION, function (event, data) {
+        that.changeTaskDescription(data.taskID, data.description);
+        $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, data);
     });
 
     var __proto__ = TaskService.prototype;
@@ -198,6 +221,7 @@ function TaskService(data) {
 
         if (task && isValidDescription(newDescription)) {
             task.setDescription(newDescription);
+            window.localStorage.setItem(task.getID(), JSON.stringify(task));
         }
     }
 
