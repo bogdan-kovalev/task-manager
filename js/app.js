@@ -70,6 +70,7 @@ function Widget() {
         }
     });
 
+    var cur;
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
@@ -89,6 +90,15 @@ function Widget() {
             });
         }
 
+        $('#' + data.task.id + " .inline-edit").mouseenter(function () {
+            cur = this;
+            this.style.width = ((this.value.length + 1) * 8) + 'px';
+        });
+
+        $('#' + data.task.id).mouseleave(function () {
+            cur.style.width = '0px'; //reset to min-width in css
+        });
+
         var needSaveButton = true;
         if (needSaveButton) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
@@ -101,17 +111,17 @@ function Widget() {
                 });
                 $('#' + data.task.id + " .save-btn").hover(
                     function () {
-                        $('#' + data.task.id + " .inline-edit").unbind('focusout');
+                        $('#' + data.task.id + " .inline-edit").unbind('blur');
                     },
                     function () {
-                        $('#' + data.task.id + " .inline-edit").focusout(function () {
+                        $('#' + data.task.id + " .inline-edit").blur(function () {
                             $('#' + data.task.id + " .save-btn").remove();
                         });
                     }
                 );
-                $(this).focusout(function () {
+                $(this).blur(function () {
                     $('#' + data.task.id + " .save-btn").remove();
-                    $(this).unbind('focusout');
+                    $(this).unbind('blur');
                 });
             });
 
