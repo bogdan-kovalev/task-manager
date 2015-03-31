@@ -92,14 +92,13 @@ function Widget() {
         }
 
         $('#' + data.task.id + " .inline-edit").mouseenter(function () {
-            if (autowidth_disabled) return false;
             cur = this;
-            this.style.width = ((this.value.length + 1) * 8) + 'px';
-        });
-
-        $('#' + data.task.id).mouseleave(function () {
-            if (autowidth_disabled) return false;
-            cur.style.width = '0px'; //reset to min-width in css
+            console.log(this);
+            this.style.width = ((this.value.length + 1) * 7) + 'px';
+            $('#' + data.task.id).mouseleave(function () {
+                cur.style.width = '0px'; //reset to min-width in css
+                $(this).unbind("mouseleave");
+            });
         });
 
         var needSaveButton = true;
@@ -107,7 +106,7 @@ function Widget() {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
             $('#' + data.task.id + " .inline-edit").focus(function () {
-                autowidth_disabled = true;
+                $('#' + data.task.id).unbind('mouseleave');
                 saveBtn.appendTo('#' + data.task.id);
                 $('#' + data.task.id + " .save-btn").on("click", function (event) {
                     autowidth_disabled = false;

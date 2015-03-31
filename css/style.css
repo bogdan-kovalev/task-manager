@@ -1,0 +1,40 @@
+input.inline-edit {
+    /* Eliminate borders and padding*/
+    min-width: 200px;
+    border: solid 1px white;
+    padding: 5px;
+    margin: 3px 10px 2px 50px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Add interaction cues on hover and focus */
+input.inline-edit:hover,
+input.inline-edit:focus {
+    border: solid 1px #D8D7D9;
+    background-image: linear-gradient(to bottom, #fff, #ddd);
+    padding: 5px;
+    border-radius: 30px;
+}
+
+.task-item {
+    /* background-image: linear-gradient(to bottom, #fff, #ddd);*/
+}
+
+.new-task {
+    background-color: #D8D7D9;
+    border-radius: 40px;
+    margin: 20px 1000px 10px 50px;
+}
+
+.widget {
+    background-color: #f6f6f9;
+    margin: 20px 850px 10px 50px;
+    border-radius: 10px
+}
+
+.btn delete-btn {
+
+}
+
+.btn save-btn {
+}
