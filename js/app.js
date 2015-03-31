@@ -41,32 +41,33 @@ function Widget() {
     var id = Math.floor(Math.random() * 1000);
 
     this.widgetClass = 'widget-' + id;
-    this.addTaskTxtFieldClass = 'new-task-txt-' + id;
-    this.addTaskBtnClass = 'add-task-btn-' + id;
+    this.newTaskInputClass = 'new-task-txt-' + id;
+    this.newTaskBtnClass = 'new-task-btn-' + id;
+
+    var newTaskInputSelector = $('.' + this.newTaskInputClass);
+    var newTaskBtnSelector = $('.' + this.newTaskBtnClass);
 
     $('#widgetTmpl').tmpl([this]).appendTo('body');
 
-    $('.' + this.addTaskBtnClass).on('click', function (event) {
-        if ($(this).hasClass("disabled")) {
-            console.log("disabled");
+    newTaskBtnSelector.on('click', function (event) {
+        if (newTaskBtnSelector.hasClass("disabled")) {
             return false;
         }
-        var textField = $('.' + that.addTaskTxtFieldClass);
-        var description = textField.val();
+
+        var description = newTaskInputSelector.val();
         var newTask = new TaskItem(description, "Bogdan");
 
+        newTaskInputSelector.val('');
+        newTaskBtnSelector.addClass("disabled");
+
         $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
-        textField.val('');
-        $('.' + that.addTaskBtnClass).addClass("disabled");
     });
 
-    $('.' + this.addTaskTxtFieldClass).keyup(function () {
-        if (isValidDescription($(this).val())) {
-            $('.' + that.addTaskBtnClass).removeClass("disabled");
-            console.log("disabled removed");
-        } else if (!$('.' + that.addTaskBtnClass).hasClass("disabled")) {
-            console.log("disabled");
-            $('.' + that.addTaskBtnClass).addClass("disabled");
+    newTaskInputSelector.keyup(function () {
+        if (isValidDescription(newTaskInputSelector.val())) {
+            newTaskBtnSelector.removeClass("disabled");
+        } else if (!newTaskBtnSelector.hasClass("disabled")) {
+            newTaskBtnSelector.addClass("disabled");
         }
     });
 
@@ -80,9 +81,9 @@ function Widget() {
         // place were task item content appends (buttons etc.)
         var needDeleteButton = true;
         if (needDeleteButton) {
-            $('#deleteTaskBtnTmpl').tmpl([{}]).appendTo('#' + data.task.id);
+            $('#deleteTaskBtnTmpl').tmpl([{}]).appendTo(item);
 
-            var deleteBtnSelector = $('#' + data.task.id + " .delete-btn");
+            var deleteBtnSelector = item.find(".delete-btn");
 
             deleteBtnSelector.on("click", function (event) {
                 //var taskID = +event.currentTarget.parentElement.id;
@@ -91,11 +92,11 @@ function Widget() {
             });
         }
 
-        $('#' + data.task.id + " .inline-edit").mouseenter(function () {
+        item.find(".inline-edit").mouseenter(function () {
             cur = this;
             console.log(this);
             this.style.width = ((this.value.length + 1) * 7) + 'px';
-            $('#' + data.task.id).mouseleave(function () {
+            item.mouseleave(function () {
                 cur.style.width = '0px'; //reset to min-width in css
                 $(this).unbind("mouseleave");
             });

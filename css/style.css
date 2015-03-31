@@ -11,30 +11,31 @@ input.inline-edit {
 input.inline-edit:hover,
 input.inline-edit:focus {
     border: solid 1px #D8D7D9;
-    background-image: linear-gradient(to bottom, #fff, #ddd);
     padding: 5px;
-    border-radius: 30px;
-}
-
-.task-item {
-    /* background-image: linear-gradient(to bottom, #fff, #ddd);*/
 }
 
 .new-task {
     background-color: #D8D7D9;
     border-radius: 40px;
-    margin: 20px 1000px 10px 50px;
+    margin: 20px 90px 10px 50px;
 }
 
 .widget {
     background-color: #f6f6f9;
-    margin: 20px 850px 10px 50px;
+    margin: 20px 50px 100px 50px;
     border-radius: 10px
-}
-
-.btn delete-btn {
 
 }
 
-.btn save-btn {
+.btn .delete-btn {
 }
+
+.btn .save-btn {
+}
+
+.task-item {
+}
+
+.task-txt {
+}
+ 
