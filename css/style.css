@@ -4,7 +4,7 @@ input.inline-edit {
     border-style: none;
     /*border: solid 1px white;*/
     padding: 5px;
-    margin: 3px 10px 2px 50px;
+    margin: 0px 5px 5px 50px;
 
 }
 
@@ -19,13 +19,13 @@ input.inline-edit:focus {
 }
 
 .new-task {
-    background-color: #D8D7D9;
+    /*background-color: #D8D7D9;*/
     border-radius: 40px;
     margin: 20px 40px 10px 50px;
 }
 
 .widget {
-    background-color: #f6f6f9;
+    background-color: #f9f9f9;
     margin: 20px 50px 100px 50px;
     border-radius: 10px
 }
@@ -33,14 +33,16 @@ input.inline-edit:focus {
 input.task-txt {
     outline: none;
 }
-
 input.task-txt:hover,
 input.task-txt:focus {
     box-shadow: 0 0 5px rgba(50, 200, 255, 0.5);
 }
-
 .btn {
 
+}
+
+.delete-btn {
+    float: right;
 }
 
 .save-btn {
