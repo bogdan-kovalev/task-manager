@@ -72,7 +72,6 @@ function Widget() {
     });
 
     var cur;
-    var autowidth_disabled = false;
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
@@ -94,7 +93,6 @@ function Widget() {
 
         item.find(".inline-edit").mouseenter(function () {
             cur = this;
-            console.log(this);
             this.style.width = ((this.value.length + 1) * 7) + 'px';
             item.mouseleave(function () {
                 cur.style.width = '0px'; //reset to min-width in css
@@ -106,29 +104,27 @@ function Widget() {
         if (needSaveButton) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-            $('#' + data.task.id + " .inline-edit").focus(function () {
-                $('#' + data.task.id).unbind('mouseleave');
+            item.find(".inline-edit").focus(function () {
+                item.unbind('mouseleave');
                 saveBtn.appendTo('#' + data.task.id);
-                $('#' + data.task.id + " .save-btn").on("click", function (event) {
-                    autowidth_disabled = false;
+                item.find(".save-btn").on("click", function (event) {
                     cur.style.width = '0px'; //reset to min-width in css
-                    var description = $('#' + data.task.id + " .inline-edit").val();
+                    var description = item.find(".inline-edit").val();
                     $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {taskID: data.task.id, description: description});
                 });
-                $('#' + data.task.id + " .save-btn").hover(
+                item.find(".save-btn").hover(
                     function () {
-                        $('#' + data.task.id + " .inline-edit").unbind('blur');
+                        item.find(".inline-edit").unbind('blur');
                     },
                     function () {
-                        $('#' + data.task.id + " .inline-edit").blur(function () {
-                            $('#' + data.task.id + " .save-btn").remove();
+                        item.find(".inline-edit").blur(function () {
+                            item.find(".save-btn").remove();
                         });
                     }
                 );
                 $(this).blur(function () {
-                    autowidth_disabled = false;
                     cur.style.width = '0px'; //reset to min-width in css
-                    $('#' + data.task.id + " .save-btn").remove();
+                    item.find(".save-btn").remove();
                     $(this).unbind('blur');
                 });
             });
