@@ -44,30 +44,30 @@ function Widget() {
     this.newTaskInputClass = 'new-task-txt-' + id;
     this.newTaskBtnClass = 'new-task-btn-' + id;
 
-    var newTaskInputSelector = $('.' + this.newTaskInputClass);
-    var newTaskBtnSelector = $('.' + this.newTaskBtnClass);
-
     $('#widgetTmpl').tmpl([this]).appendTo('body');
 
-    newTaskBtnSelector.on('click', function (event) {
-        if (newTaskBtnSelector.hasClass("disabled")) {
+    this.newTaskInputSelector = $('.' + this.newTaskInputClass);
+    this.newTaskBtnSelector = $('.' + this.newTaskBtnClass);
+
+    this.newTaskBtnSelector.on('click', function (event) {
+        if (that.newTaskBtnSelector.hasClass("disabled")) {
             return false;
         }
 
-        var description = newTaskInputSelector.val();
+        var description = that.newTaskInputSelector.val();
         var newTask = new TaskItem(description, "Bogdan");
 
-        newTaskInputSelector.val('');
-        newTaskBtnSelector.addClass("disabled");
+        that.newTaskInputSelector.val('');
+        that.newTaskBtnSelector.addClass("disabled");
 
         $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
     });
 
-    newTaskInputSelector.keyup(function () {
-        if (isValidDescription(newTaskInputSelector.val())) {
-            newTaskBtnSelector.removeClass("disabled");
-        } else if (!newTaskBtnSelector.hasClass("disabled")) {
-            newTaskBtnSelector.addClass("disabled");
+    this.newTaskInputSelector.keypress(function () {
+        if (isValidDescription(that.newTaskInputSelector.val())) {
+            that.newTaskBtnSelector.removeClass("disabled");
+        } else if (!that.newTaskBtnSelector.hasClass("disabled")) {
+            that.newTaskBtnSelector.addClass("disabled");
         }
     });
 
