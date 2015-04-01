@@ -41,6 +41,10 @@ input.task-txt:focus {
 
 }
 
+input.finished {
+    text-decoration: line-through;
+}
+
 .delete-btn {
     float: right;
 }

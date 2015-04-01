@@ -11,17 +11,22 @@ Event = {
     UI_TASK_DELETED: "ui-task-deleted",
     UI_SAVE_DESCRIPTION: "ui-save-description",
     UI_DESCRIPTION_SAVED: "ui-description-saved",
+    UI_FINISH_TASK: "ui-finish-task",
+    UI_TASK_FINISHED: "ui-task-finished",
     MODEL_ADD_TASK: "model-add-task",
     MODEL_TASK_ADDED: "model-task-added",
     MODEL_TASK_RESTORED: "model-task-restored",
     MODEL_DELETE_TASK: "model-delete-task",
     MODEL_TASK_DELETED: "model-task-deleted",
     MODEL_CHANGE_DESCRIPTION: "model-change-description",
-    MODEL_DESCRIPTION_CHANGED: "model-description-changed"
+    MODEL_DESCRIPTION_CHANGED: "model-description-changed",
+    MODEL_FINISH_TASK: "model-finish-task",
+    MODEL_TASK_FINISHED: "model-task-finished"
 };
 
 var eventBus = {};
 var storageKey = 'task-list-local-storage';
+var user = "Bogdan";
 
 $(function () {
 
@@ -48,6 +53,7 @@ function Widget() {
 
     this.newTaskInputSelector = $('.' + this.newTaskInputClass);
     this.newTaskBtnSelector = $('.' + this.newTaskBtnClass);
+    this.taskItemsWrapper = $('.' + that.widgetClass + ' .task-items-wrapper');
 
     this.newTaskBtnSelector.on('click', function (event) {
         if (that.newTaskBtnSelector.hasClass("disabled")) {
@@ -55,7 +61,7 @@ function Widget() {
         }
 
         var description = that.newTaskInputSelector.val();
-        var newTask = new TaskItem(description, "Bogdan");
+        var newTask = new TaskItem(description, user);
 
         that.newTaskInputSelector.val('');
         that.newTaskBtnSelector.addClass("disabled");
@@ -75,16 +81,15 @@ function Widget() {
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
-        item.appendTo('.' + that.widgetClass + ' .task-items-wrapper');
+        item.appendTo(that.taskItemsWrapper);
 
         // place were task item content appends (buttons etc.)
-        var needDeleteButton = true;
-        if (needDeleteButton) {
-            $('#deleteTaskBtnTmpl').tmpl([{}]).appendTo(item);
+        var ableToDelete = user == data.task.author;
+        if (ableToDelete) {
+            var deleteBtn = $('#deleteTaskBtnTmpl').tmpl([{}]);
+            deleteBtn.appendTo(item);
 
-            var deleteBtnSelector = item.find(".delete-btn");
-
-            deleteBtnSelector.on("click", function (event) {
+            deleteBtn.on("click", function (event) {
                 //var taskID = +event.currentTarget.parentElement.id;
                 var taskID = data.task.id;
                 $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
@@ -100,19 +105,21 @@ function Widget() {
             });
         });
 
-        var needSaveButton = true;
-        if (needSaveButton) {
+        var ableToChange = user == data.task.author;
+        if (ableToChange) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
             item.find(".inline-edit").focus(function () {
                 item.unbind('mouseleave');
                 saveBtn.appendTo('#' + data.task.id);
-                item.find(".save-btn").on("click", function (event) {
+
+                saveBtn.on("click", function (event) {
                     cur.style.width = '0px'; //reset to min-width in css
                     var description = item.find(".inline-edit").val();
                     $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {taskID: data.task.id, description: description});
                 });
-                item.find(".save-btn").hover(
+
+                saveBtn.hover(
                     function () {
                         item.find(".inline-edit").unbind('blur');
                     },
@@ -128,7 +135,17 @@ function Widget() {
                     $(this).unbind('blur');
                 });
             });
+        }
 
+        var ableToFinish = user == data.task.assignee;
+        if (ableToFinish) {
+            var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
+            finishBtn.appendTo(item);
+
+            finishBtn.on('click', function () {
+                var taskID = data.task.id;
+                $(eventBus).trigger(Event.UI_FINISH_TASK, {taskID: taskID, status: Status.FINISHED});
+            });
         }
         // end of place were task item content appends (buttons etc.)
     });
@@ -141,6 +158,13 @@ function Widget() {
 
     $(eventBus).on(Event.UI_DESCRIPTION_SAVED, function (event, data) {
         $("#" + data.taskID + " .save-btn").remove();
+    });
+
+    $(eventBus).on(Event.UI_TASK_FINISHED, function (event, data) {
+        var taskItem = $("#" + data.taskID);
+        taskItem.find(".finish-btn").remove();
+        taskItem.appendTo(that.taskItemsWrapper);
+        taskItem.find("input").addClass("finished");
     });
 }
 
@@ -171,6 +195,14 @@ function Controller() {
 
     $(eventBus).on(Event.MODEL_DESCRIPTION_CHANGED, function (event, data) {
         $(eventBus).trigger(Event.UI_DESCRIPTION_SAVED, data);
+    });
+
+    $(eventBus).on(Event.UI_FINISH_TASK, function (event, data) {
+        $(eventBus).trigger(Event.MODEL_FINISH_TASK, data);
+    });
+
+    $(eventBus).on(Event.MODEL_TASK_FINISHED, function (event, data) {
+        $(eventBus).trigger(Event.UI_TASK_FINISHED, data);
     });
 }
 
@@ -203,6 +235,11 @@ function TaskService(data) {
     $(eventBus).on(Event.MODEL_CHANGE_DESCRIPTION, function (event, data) {
         that.changeTaskDescription(data.taskID, data.description);
         $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, data);
+    });
+
+    $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
+        that.changeTaskStatus(data.taskID, data.status);
+        $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
     });
 
     var __proto__ = TaskService.prototype;
