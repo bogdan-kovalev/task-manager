@@ -1,41 +1,50 @@
 input.inline-edit {
     /* Eliminate borders and padding*/
     min-width: 200px;
-    border: solid 1px white;
+    border-style: none;
+    /*border: solid 1px white;*/
     padding: 5px;
     margin: 3px 10px 2px 50px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+
 }
 
 /* Add interaction cues on hover and focus */
 input.inline-edit:hover,
 input.inline-edit:focus {
     border: solid 1px #D8D7D9;
+    border-style: none;
     padding: 5px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+
 }
 
 .new-task {
     background-color: #D8D7D9;
     border-radius: 40px;
-    margin: 20px 90px 10px 50px;
+    margin: 20px 40px 10px 50px;
 }
 
 .widget {
     background-color: #f6f6f9;
     margin: 20px 50px 100px 50px;
     border-radius: 10px
+}
+
+input.task-txt {
+    outline: none;
+}
+
+input.task-txt:hover,
+input.task-txt:focus {
+    box-shadow: 0 0 5px rgba(50, 200, 255, 0.5);
+}
+
+.btn {
 
 }
 
-.btn .delete-btn {
-}
-
-.btn .save-btn {
+.btn save-btn {
 }
 
 .task-item {
 }
-
-.task-txt {
-}
- 
