@@ -8,6 +8,16 @@
     <script type="text/javascript" src="./js/app.js"></script>
     <link href="./css/style.css" rel="stylesheet"/>
 
+    <style>
+        input.finished {
+            text-decoration: line-through;
+        }
+
+        .delete-btn {
+            float: right;
+        }
+    </style>
+
     <script id="widgetTmpl" type="text/x-jquery-tmpl">
         <div class="widget ${widgetClass}">
             <div class="new-task">
@@ -42,7 +52,6 @@
         <a class="btn finish-btn">
             <span>Finish</span>
         </a>
-
     </script>
 </head>
 <body>
