@@ -24,23 +24,16 @@ Event = {
     MODEL_TASK_FINISHED: "model-task-finished"
 };
 
-var eventBus = {};
-var storageKey = 'task-list-local-storage';
 var user = "Bogdan";
 
 $(function () {
-
-    new Widget();
-
-    new Controller();
-
-    var data = tryRestoreFromLocal(storageKey);
-    console.log(data);
-    new TaskService(data);
-
+    var eventBus = {};
+    new Widget(eventBus);
+    new Controller(eventBus);
+    new Model(new Storage(), eventBus);
 });
 
-function Widget() {
+function Widget(eventBus) {
     var that = this;
 
     var id = Math.floor(Math.random() * 1000);
@@ -168,7 +161,7 @@ function Widget() {
     });
 }
 
-function Controller() {
+function Controller(eventBus) {
     $(eventBus).on(Event.UI_NEW_TASK, function (event, data) {
         $(eventBus).trigger(Event.MODEL_ADD_TASK, data);
     });
@@ -206,13 +199,12 @@ function Controller() {
     });
 }
 
-function TaskService(data) {
-    this._tasksIDs = data.tasksIDs;
-    this._tasks = data.tasks;
+function Model(storage, eventBus) {
+    this._storage = storage;
     var that = this;
 
     //restoring
-    this._tasks.forEach(function (task) {
+    this._storage.fetchTasks().forEach(function (task) {
         var taskDTO = task.getDTO();
         $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
     });
@@ -242,60 +234,46 @@ function TaskService(data) {
         $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
     });
 
-    var __proto__ = TaskService.prototype;
+    var __proto__ = Model.prototype;
 
     __proto__.addTask = function (task) {
         var id = task.getID();
         checkTask(task); // throws InvalidTaskException
 
-        this._tasksIDs.push(id);
-        this._tasks.push(task);
-
-        window.localStorage.setItem(storageKey, JSON.stringify(this._tasksIDs));
-        window.localStorage.setItem(id, JSON.stringify(task));
-    }
-
-    __proto__.fetchTasks = function () {
-        return this._tasks;
+        this._storage.add(task);
     }
 
     __proto__.deleteTask = function (taskID) {
-        var task = this.getTaskByID(taskID);
+        var task = this._storage.getTaskByID(taskID);
         if (task) {
-            remove(this._tasksIDs, taskID);
-            remove(this._tasks, task);
-
-            window.localStorage.setItem(storageKey, JSON.stringify(this._tasksIDs));
-            window.localStorage.removeItem(taskID);
+            this._storage.delete(task);
         }
     }
 
-    __proto__.getTaskByID = function (id) {
-        return binarySearch(this._tasks, id, 0, this._tasks.length);
-    }
-
     __proto__.assignTask = function (taskID, user) {
-        var task = this.getTaskByID(taskID);
+        var task = this._storage.getTaskByID(taskID);
 
         if (task) {
             task.assignTo(user);
+            this._storage.update(task);
         }
     }
 
     __proto__.changeTaskDescription = function (taskID, newDescription) {
-        var task = this.getTaskByID(taskID);
+        var task = this._storage.getTaskByID(taskID);
 
         if (task && isValidDescription(newDescription)) {
             task.setDescription(newDescription);
-            window.localStorage.setItem(task.getID(), JSON.stringify(task));
+            this._storage.update(task);
         }
     }
 
     __proto__.changeTaskStatus = function (taskID, newStatus) {
-        var task = this.getTaskByID(taskID);
+        var task = this._storage.getTaskByID(taskID);
 
         if (task) {
             task.setStatus(newStatus);
+            this._storage.update(task);
         }
     }
 }
@@ -363,5 +341,43 @@ function TaskItem(description, author) {
         this._assignee = data._assignee;
         this._timestamp = data._timestamp;
         this._status = data._status;
+    }
+}
+
+function Storage() {
+
+    this._storageKey = 'task-list-local-storage';
+    var data = tryRestoreFromLocal(this._storageKey);
+    this._tasks = data.tasks;
+    this._tasksIDs = data.tasksIDs;
+
+    Storage.prototype.add = function (task) {
+        var id = task.getID();
+        this._tasksIDs.push(id);
+        this._tasks.push(task);
+
+        window.localStorage.setItem(this._storageKey, JSON.stringify(this._tasksIDs));
+        window.localStorage.setItem(id, JSON.stringify(task));
+    }
+
+    Storage.prototype.delete = function (task) {
+        var id = task.getID();
+        remove(this._tasksIDs, id);
+        remove(this._tasks, task);
+
+        window.localStorage.setItem(this._storageKey, JSON.stringify(this._tasksIDs));
+        window.localStorage.removeItem(id);
+    }
+
+    Storage.prototype.fetchTasks = function (task) {
+        return this._tasks;
+    }
+
+    Storage.prototype.update = function (task) {
+        window.localStorage.setItem(task.getID(), JSON.stringify(task));
+    }
+
+    Storage.prototype.getTaskByID = function (id) {
+        return binarySearch(this._tasks, id, 0, this._tasks.length);
     }
 }

@@ -1,8 +1,8 @@
 function tryRestoreFromLocal(localStorageKey) {
     var restoredTasks = [];
     var localTasksIDs = [];
-    if (window.localStorage[localStorageKey] == undefined) {
-        window.localStorage[localStorageKey] = "";
+    if (window.localStorage.getItem(localStorageKey) == undefined) {
+        window.localStorage.setItem(localStorageKey, "");
     } else {
         try {
             localTasksIDs = JSON.parse(window.localStorage.getItem(localStorageKey));
