@@ -1,5 +1,3 @@
-var test = require('unit.js');
-
-describe('Model test', function () {
-
+QUnit.test("Model test", function (assert) {
+    assert.ok(1 == "1", "Passed!");
 });
