@@ -346,9 +346,9 @@ function TaskItem(description, author) {
     }
 }
 
-function Storage() {
+function Storage(storageKey) {
 
-    this._storageKey = 'task-list-local-storage';
+    this._storageKey = storageKey ? storageKey : 'task-list-local-storage';
     var data = tryRestoreFromLocal(this._storageKey);
     this._tasks = data.tasks;
     this._tasksIDs = data.tasksIDs;
@@ -369,6 +369,17 @@ function Storage() {
 
         window.localStorage.setItem(this._storageKey, JSON.stringify(this._tasksIDs));
         window.localStorage.removeItem(id);
+    }
+
+    Storage.prototype.clear = function () {
+        this._tasksIDs.forEach(function (key) {
+            window.localStorage.removeItem(key);
+        });
+
+        window.localStorage.removeItem(this._storageKey);
+
+        this._tasks = [];
+        this._tasksIDs = [];
     }
 
     Storage.prototype.fetchTasks = function (task) {
