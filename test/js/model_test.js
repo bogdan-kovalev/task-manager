@@ -7,7 +7,7 @@ QUnit.test("ADD NEW TASK", function (assert) {
     var newTask = new TaskItem(description, user);
 
     $(eventBus).on(Event.MODEL_TASK_ADDED, function (event, data) {
-        assert.ok(true, "Passed");
+        assert.deepEqual(data.task, newTask.getDTO(), "Passed!");
     });
 
     $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
