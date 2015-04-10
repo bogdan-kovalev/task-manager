@@ -26,12 +26,14 @@ Event = {
 
 var user = "Bogdan";
 
-$(function () {
-    var eventBus = {};
-    new Widget(eventBus);
-    new Controller(eventBus);
-    new Model(new Storage(), eventBus);
-});
+Application = {
+    init: function () {
+        var eventBus = {};
+        new Widget(eventBus);
+        new Controller(eventBus);
+        new Model(new Storage(), eventBus);
+    }
+};
 
 function Widget(eventBus) {
     var that = this;
