@@ -72,7 +72,6 @@ function Widget(eventBus) {
         }
     });
 
-    var cur;
     $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
         var item = $('#taskItemTmpl').tmpl([data]);
         item.fadeIn(300);
@@ -91,43 +90,15 @@ function Widget(eventBus) {
             });
         }
 
-        item.find(".inline-edit").mouseenter(function () {
-            cur = this;
-            this.style.width = ((this.value.length + 1) * 7) + 'px';
-            item.mouseleave(function () {
-                cur.style.width = '0px'; //reset to min-width in css
-                $(this).unbind("mouseleave");
-            });
-        });
-
         var ableToChange = user == data.task.author;
         if (ableToChange) {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-            item.find(".inline-edit").focus(function () {
-                item.unbind('mouseleave');
+            item.find(".inline-edit").keypress(function () {
                 saveBtn.appendTo('#' + data.task.id);
-
                 saveBtn.on("click", function (event) {
-                    cur.style.width = '0px'; //reset to min-width in css
                     var description = item.find(".inline-edit").val();
                     $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {taskID: data.task.id, description: description});
-                });
-
-                saveBtn.hover(
-                    function () {
-                        item.find(".inline-edit").unbind('blur');
-                    },
-                    function () {
-                        item.find(".inline-edit").blur(function () {
-                            item.find(".save-btn").remove();
-                        });
-                    }
-                );
-                $(this).blur(function () {
-                    cur.style.width = '0px'; //reset to min-width in css
-                    item.find(".save-btn").remove();
-                    $(this).unbind('blur');
                 });
             });
         }

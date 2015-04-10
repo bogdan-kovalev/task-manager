@@ -1,6 +1,6 @@
 input.inline-edit {
     /* Eliminate borders and padding*/
-    min-width: 200px;
+    width: 70%;
     border-style: none;
     /*border: solid 1px white;*/
     padding: 5px;
@@ -43,6 +43,11 @@ input.task-txt:focus {
 }
 
 .save-btn {
+    float: right;
+}
+
+.finish-btn {
+    float: right;
 }
 
 .task-item {
