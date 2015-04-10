@@ -40,7 +40,7 @@ function InvalidTaskError(message) {
 }
 
 function binarySearch(tasks, id, start, end) {
-    if (start > end) {
+    if (start > end || end == 0) {
         return null;
     } //does not exist
 

@@ -249,6 +249,10 @@ function Model(storage, eventBus) {
             this._storage.update(task);
         }
     }
+
+    __proto__.getTaskByID = function (id) {
+        return this._storage.getTaskByID(id);
+    }
 }
 
 function TaskItem(description, author) {
