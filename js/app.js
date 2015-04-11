@@ -64,7 +64,10 @@ function Widget(eventBus) {
         $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
     });
 
-    this.newTaskInputSelector.keypress(function () {
+    this.newTaskInputSelector.keypress(function (event) {
+        if (event.keyCode == 13) {
+            that.newTaskBtnSelector.click();
+        }
         if (isValidDescription(that.newTaskInputSelector.val())) {
             that.newTaskBtnSelector.removeClass("disabled");
         } else if (!that.newTaskBtnSelector.hasClass("disabled")) {
