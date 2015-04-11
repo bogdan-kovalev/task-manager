@@ -39,23 +39,6 @@ function InvalidTaskError(message) {
     this.message = message;
 }
 
-function binarySearch(tasks, id, start, end) {
-    if (start > end || end == 0) {
-        return null;
-    } //does not exist
-
-    var middle = Math.floor((start + end) / 2);
-    var value = tasks[middle];
-
-    if (value.getID() > id) {
-        return binarySearch(tasks, id, start, middle - 1);
-    }
-    if (value.getID() < id) {
-        return binarySearch(tasks, id, middle + 1, end);
-    }
-    return value; //found!
-}
-
 function clone(obj) {
     var copy;
 

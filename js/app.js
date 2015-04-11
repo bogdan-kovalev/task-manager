@@ -346,7 +346,6 @@ function Storage(storageKey) {
     this._storageKey = storageKey ? storageKey : 'task-list-local-storage';
     var data = tryRestoreFromLocal(this._storageKey);
     this._taskList = new TaskList(data.tasks);
-    console.log(this._taskList);
 
     Storage.prototype.add = function (task) {
         var id = task.getID();
