@@ -173,54 +173,14 @@ function Controller(eventBus) {
 }
 
 function Model(storage, eventBus) {
-    this._storage = storage;
-    var that = this;
-
-    //restoring
-    this._storage.fetchTasks().forEach(function (task) {
-        var taskDTO = task.getDTO();
-        $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
-    });
-
-    $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
-        try {
-            that.addTask(data.task);
-            var taskDTO = data.task.getDTO();
-            $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
-        } catch (e) {
-            alert(e.message);
-        }
-    });
-
-    $(eventBus).on(Event.MODEL_DELETE_TASK, function (event, data) {
-        that.deleteTask(data.taskID);
-        $(eventBus).trigger(Event.MODEL_TASK_DELETED, data);
-    });
-
-    $(eventBus).on(Event.MODEL_CHANGE_DESCRIPTION, function (event, data) {
-        that.changeTaskDescription(data.taskID, data.description);
-        $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, data);
-    });
-
-    $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
-        that.changeTaskStatus(data.taskID, data.status);
-        $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
-    });
-
     var __proto__ = Model.prototype;
 
     __proto__.addTask = function (task) {
-        var id = task.getID();
-        checkTask(task); // throws InvalidTaskException
-
         this._storage.add(task);
     }
 
     __proto__.deleteTask = function (taskID) {
-        var task = this._storage.getTaskByID(taskID);
-        if (task) {
-            this._storage.delete(task);
-        }
+        this._storage.delete(taskID);
     }
 
     __proto__.assignTask = function (taskID, user) {
@@ -235,7 +195,7 @@ function Model(storage, eventBus) {
     __proto__.changeTaskDescription = function (taskID, newDescription) {
         var task = this._storage.getTaskByID(taskID);
 
-        if (task && isValidDescription(newDescription)) {
+        if (task) {
             task.setDescription(newDescription);
             this._storage.update(task);
         }
@@ -253,15 +213,39 @@ function Model(storage, eventBus) {
     __proto__.getTaskByID = function (id) {
         return this._storage.getTaskByID(id);
     }
+
+    this._storage = storage;
+    var that = this;
+
+    //restoring
+    this._storage.fetchTasks().forEach(function (task) {
+        var taskDTO = task.getDTO();
+        $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
+    });
+
+    $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
+        that.addTask(data.task);
+        var taskDTO = data.task.getDTO();
+        $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
+    });
+
+    $(eventBus).on(Event.MODEL_DELETE_TASK, function (event, data) {
+        that.deleteTask(data.taskID);
+        $(eventBus).trigger(Event.MODEL_TASK_DELETED, data);
+    });
+
+    $(eventBus).on(Event.MODEL_CHANGE_DESCRIPTION, function (event, data) {
+        that.changeTaskDescription(data.taskID, data.description);
+        $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, data);
+    });
+
+    $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
+        that.changeTaskStatus(data.taskID, data.status);
+        $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
+    });
 }
 
 function TaskItem(description, author) {
-    this._description = description;
-    this._author = author;
-    this._assignee = author;
-    this._timestamp = new Date().getTime();
-    this._status = Status.NEW;
-
     var __proto__ = TaskItem.prototype;
 
     __proto__.getDescription = function () {
@@ -319,46 +303,78 @@ function TaskItem(description, author) {
         this._timestamp = data._timestamp;
         this._status = data._status;
     }
+
+    this._description = description;
+    this._author = author;
+    this._assignee = author;
+    this._timestamp = new Date().getTime();
+    this._status = Status.NEW;
+}
+
+function TaskList(array) {
+    var that = this;
+
+    TaskList.prototype.appendFromArray = function (array) {
+        if (array && array.constructor === Array) {
+            array.forEach(function (task) {
+                var id = task.getID();
+                that[id] = task;
+            });
+        }
+    }
+    TaskList.prototype.getIDs = function () {
+        var IDs = [];
+        for (id in this) {
+            if (this.hasOwnProperty(id)) {
+                IDs.push(id);
+            }
+        }
+        return IDs;
+    }
+    TaskList.prototype.asArray = function () {
+        var array = [];
+        this.getIDs().forEach(function (id) {
+            array.push(that[id]);
+        });
+        return array;
+    }
+
+    that.appendFromArray(array);
 }
 
 function Storage(storageKey) {
-
     this._storageKey = storageKey ? storageKey : 'task-list-local-storage';
     var data = tryRestoreFromLocal(this._storageKey);
-    this._tasks = data.tasks;
-    this._tasksIDs = data.tasksIDs;
+    this._taskList = new TaskList(data.tasks);
+    console.log(this._taskList);
 
     Storage.prototype.add = function (task) {
         var id = task.getID();
-        this._tasksIDs.push(id);
-        this._tasks.push(task);
+        this._taskList[id] = task;
 
-        window.localStorage.setItem(this._storageKey, JSON.stringify(this._tasksIDs));
+        window.localStorage.setItem(this._storageKey, JSON.stringify(this._taskList.getIDs()));
         window.localStorage.setItem(id, JSON.stringify(task));
     }
 
-    Storage.prototype.delete = function (task) {
-        var id = task.getID();
-        remove(this._tasksIDs, id);
-        remove(this._tasks, task);
+    Storage.prototype.delete = function (taskID) {
+        delete this._taskList[taskID];
 
-        window.localStorage.setItem(this._storageKey, JSON.stringify(this._tasksIDs));
-        window.localStorage.removeItem(id);
+        window.localStorage.setItem(this._storageKey, JSON.stringify(this._taskList.getIDs()));
+        window.localStorage.removeItem(taskID);
     }
 
     Storage.prototype.clear = function () {
-        this._tasksIDs.forEach(function (key) {
+        this._taskList.getIDs().forEach(function (key) {
             window.localStorage.removeItem(key);
         });
 
         window.localStorage.removeItem(this._storageKey);
 
-        this._tasks = [];
-        this._tasksIDs = [];
+        this._taskList = new TaskList();
     }
 
     Storage.prototype.fetchTasks = function (task) {
-        return this._tasks;
+        return this._taskList.asArray();
     }
 
     Storage.prototype.update = function (task) {
@@ -366,6 +382,6 @@ function Storage(storageKey) {
     }
 
     Storage.prototype.getTaskByID = function (id) {
-        return binarySearch(this._tasks, id, 0, this._tasks.length);
+        return this._taskList[id];
     }
 }
