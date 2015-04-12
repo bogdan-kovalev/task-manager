@@ -16,6 +16,8 @@ function Application() {
         UI_DESCRIPTION_SAVED: "ui-description-saved",
         UI_FINISH_TASK: "ui-finish-task",
         UI_TASK_FINISHED: "ui-task-finished",
+        UI_RESTORE_DESCRIPTION: "ui-restore-task",
+        UI_TASK_DESCRIPTION_TAKEN: "ui-task-description-taken",
         MODEL_ADD_TASK: "model-add-task",
         MODEL_TASK_ADDED: "model-task-added",
         MODEL_TASK_RESTORED: "model-task-restored",
@@ -24,7 +26,9 @@ function Application() {
         MODEL_CHANGE_DESCRIPTION: "model-change-description",
         MODEL_DESCRIPTION_CHANGED: "model-description-changed",
         MODEL_FINISH_TASK: "model-finish-task",
-        MODEL_TASK_FINISHED: "model-task-finished"
+        MODEL_TASK_FINISHED: "model-task-finished",
+        MODEL_GET_TASK_DESCRIPTION: "model-get-task-description",
+        MODEL_TASK_DESCRIPTION_RETURNED: "model-task-description-returned"
     };
 
     function Widget(eventBus) {
@@ -52,18 +56,30 @@ function Application() {
             $(this).addClass("disabled");
         });
 
-        this.newTaskInputSelector.keypress(function (event) {
+        this.newTaskInputSelector.keydown(function (event) {
             if (event.keyCode == 13) {
-                that.newTaskBtnSelector.click();
+                if (!event.shiftKey) {
+                    event.preventDefault();
+                    that.newTaskBtnSelector.click();
+                } else {
+                    var rows = $(this).attr('rows');
+                    $(this).attr('rows', +rows + 1);
+                }
+            } else if (event.keyCode == 27) {
+                //esc
             }
+        });
+
+        this.newTaskInputSelector.keyup(function (event) {
             if (isValidDescription($(this).val())) {
                 that.newTaskBtnSelector.removeClass("disabled");
-            } else if (!that.newTaskBtnSelector.hasClass("disabled")) {
+            } else {
                 that.newTaskBtnSelector.addClass("disabled");
             }
         });
 
         $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
+            var taskID = data.task.id;
             var item = $('#taskItemTmpl').tmpl([data]);
             item.fadeIn(300);
             item.appendTo(that.taskItemsWrapperSelector);
@@ -75,7 +91,6 @@ function Application() {
                 deleteBtn.appendTo(item);
 
                 deleteBtn.on("click", function (event) {
-                    var taskID = data.task.id;
                     $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
                 });
             }
@@ -84,15 +99,36 @@ function Application() {
             if (ableToChange) {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-                item.find(".inline-edit").keypress(function () {
-                    saveBtn.appendTo(item);
-                    saveBtn.on("click", function (event) {
-                        var description = item.find(".inline-edit").val();
-                        $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
-                            taskID: data.task.id,
-                            description: description
-                        });
-                    });
+                item.find(".inline-edit").keydown(function () {
+                    if (event.keyCode == 13) {
+                        if (event.shiftKey) {
+                            event.preventDefault();
+                            var rows = $(this).attr('rows');
+                            $(this).attr('rows', +rows + 1);
+                        }
+                    }
+                });
+
+                item.find(".inline-edit").keyup(function (event) {
+                    if (event.keyCode == 27) {
+                        $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
+                        return;
+                    }
+
+                    if (isValidDescription($(this).val())) {
+                        if (!$.contains(item, saveBtn)) {
+                            saveBtn.appendTo(item);
+                            saveBtn.on("click", function (event) {
+                                var description = item.find(".inline-edit").val();
+                                $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
+                                    taskID: data.task.id,
+                                    description: description
+                                });
+                            });
+                        }
+                    } else {
+                        saveBtn.remove();
+                    }
                 });
             }
 
@@ -123,7 +159,14 @@ function Application() {
             var taskItem = $("#" + data.taskID);
             taskItem.find(".finish-btn").remove();
             taskItem.appendTo(that.taskItemsWrapperSelector);
-            taskItem.find("input").addClass("finished");
+            taskItem.find("textarea").addClass("finished");
+        });
+
+        $(eventBus).on(Event.UI_TASK_DESCRIPTION_TAKEN, function (event, data) {
+            var taskItem = $("#" + data.taskID);
+            taskItem.find("textarea").val(data.description);
+            taskItem.find("textarea").blur();
+            taskItem.find(".save-btn").remove();
         });
     }
 
@@ -162,6 +205,14 @@ function Application() {
 
         $(eventBus).on(Event.MODEL_TASK_FINISHED, function (event, data) {
             $(eventBus).trigger(Event.UI_TASK_FINISHED, data);
+        });
+
+        $(eventBus).on(Event.UI_RESTORE_DESCRIPTION, function (event, data) {
+            $(eventBus).trigger(Event.MODEL_GET_TASK_DESCRIPTION, data);
+        });
+
+        $(eventBus).on(Event.MODEL_TASK_DESCRIPTION_RETURNED, function (event, data) {
+            $(eventBus).trigger(Event.UI_TASK_DESCRIPTION_TAKEN, data);
         });
     }
 
@@ -234,6 +285,11 @@ function Application() {
         $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
             that.changeTaskStatus(data.taskID, data.status);
             $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
+        });
+
+        $(eventBus).on(Event.MODEL_GET_TASK_DESCRIPTION, function (event, data) {
+            data.description = that.getTaskByID(data.taskID).getDescription();
+            $(eventBus).trigger(Event.MODEL_TASK_DESCRIPTION_RETURNED, data);
         });
     }
 

@@ -1,5 +1,6 @@
-input.inline-edit {
+.inline-edit {
     /* Eliminate borders and padding*/
+    height: auto;
     width: 70%;
     border: solid 1px white;
     padding: 5px;
@@ -8,10 +9,11 @@ input.inline-edit {
 }
 
 /* Add interaction cues on hover and focus */
-input.inline-edit:hover {
+.inline-edit:hover {
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-input.inline-edit:focus {
+
+.inline-edit:focus {
 }
 
 .new-task {
@@ -27,13 +29,13 @@ input.inline-edit:focus {
     padding: 10px;
 }
 
-input.task-txt {
+.task-txt {
     width: 70%;
     margin: 0px 5px 5px 50px;
     outline: none;
 }
 
-input.task-txt:focus {
+.task-txt:focus {
     box-shadow: 0 0 5px rgba(50, 200, 255, 0.5);
 }
 
