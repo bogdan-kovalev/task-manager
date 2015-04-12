@@ -65,7 +65,7 @@
     padding-right: 5px;
 }
 
-input.finished {
+textarea.finished {
     text-decoration: line-through;
 }
 
