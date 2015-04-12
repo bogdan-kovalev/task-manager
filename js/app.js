@@ -58,13 +58,10 @@ function Application() {
         });
 
         this.newTaskInputSelector.keydown(function (event) {
-            if (event.keyCode == 13) {
-                if (!event.shiftKey) {
-                    event.preventDefault();
-                    var val = $(this).val().trim();
-                    $(this).val(val);
-                    that.newTaskBtnSelector.click();
-                }
+            if (event.keyCode == 13 && event.ctrlKey) {
+                event.preventDefault();
+                trimValue($(this));
+                that.newTaskBtnSelector.click();
             } else if (event.keyCode == 27) {
                 $(this).val('');
             }
@@ -103,12 +100,6 @@ function Application() {
             if (ableToChange) {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-                textarea.keydown(function () {
-                    if (event.keyCode == 13 & event.shiftKey) {
-                        event.preventDefault();
-                    }
-                });
-
                 textarea.keyup(function (event) {
                     autoRows($(this));
 
@@ -118,7 +109,7 @@ function Application() {
                     }
 
                     if (isValidDescription($(this).val())) {
-                        if (!$.contains(item, saveBtn)) {
+                        if (item.find(saveBtn).length == 0) {
                             saveBtn.appendTo(item);
                             saveBtn.on("click", function (event) {
                                 var description = item.find(".inline-edit").val();

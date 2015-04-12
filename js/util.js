@@ -13,6 +13,11 @@ function autoRows(textarea) {
     }
 }
 
+function trimValue(textarea) {
+    var val = textarea.val().trim();
+    textarea.val(val);
+}
+
 function isValidDescription(d) {
     return (d && /\S/.test(d)) ? true : false;
 }
