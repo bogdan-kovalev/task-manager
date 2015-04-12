@@ -15,8 +15,8 @@
     <script id="widgetTmpl" type="text/x-jquery-tmpl">
         <div class="widget ${widgetClass}">
             <div class="new-task">
-                <input class="task-txt ${newTaskInputClass}"/>
-                <a class="btn disabled ${newTaskBtnClass}">
+                <input class="task-txt new-task-txt"/>
+                <a class="btn disabled new-task-btn">
                     <span>New task</span>
                 </a>
             </div>
@@ -26,6 +26,7 @@
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item" id="${task.id}">
+            <span>${task.creationDate}</span>
             <input class="inline-edit" value="${task.description}"/>
         </div>
     </script>
@@ -51,9 +52,7 @@
 <body>
 <script>
     $(function () {
-        var app = new Application();
-        var eventBus = {};
-        app.init(eventBus);
+        new Application().init();
     });
 </script>
 </body>

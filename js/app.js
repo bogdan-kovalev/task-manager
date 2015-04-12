@@ -31,33 +31,32 @@ function Application() {
         var that = this;
         var id = Math.floor(Math.random() * 1000);
         this.widgetClass = 'widget-' + id;
-        this.newTaskInputClass = 'new-task-txt-' + id;
-        this.newTaskBtnClass = 'new-task-btn-' + id;
 
         $('#widgetTmpl').tmpl([this]).appendTo('body');
 
-        this.newTaskInputSelector = $('.' + this.newTaskInputClass);
-        this.newTaskBtnSelector = $('.' + this.newTaskBtnClass);
+        this.newTaskInputSelector = $('.' + this.widgetClass + ' .new-task-txt');
+        this.newTaskBtnSelector = $('.' + this.widgetClass + ' .new-task-btn');
         this.taskItemsWrapperSelector = $('.' + this.widgetClass + ' .task-items-wrapper');
 
         this.newTaskBtnSelector.on('click', function (event) {
-            if (that.newTaskBtnSelector.hasClass("disabled")) {
+            if ($(this).hasClass("disabled")) {
                 return false;
             }
 
             var description = that.newTaskInputSelector.val();
             var newTask = new TaskItem(description, user);
 
-            that.newTaskInputSelector.val('');
-            that.newTaskBtnSelector.addClass("disabled");
             $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
+
+            that.newTaskInputSelector.val('');
+            $(this).addClass("disabled");
         });
 
         this.newTaskInputSelector.keypress(function (event) {
             if (event.keyCode == 13) {
                 that.newTaskBtnSelector.click();
             }
-            if (isValidDescription(that.newTaskInputSelector.val())) {
+            if (isValidDescription($(this).val())) {
                 that.newTaskBtnSelector.removeClass("disabled");
             } else if (!that.newTaskBtnSelector.hasClass("disabled")) {
                 that.newTaskBtnSelector.addClass("disabled");
@@ -86,7 +85,7 @@ function Application() {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
                 item.find(".inline-edit").keypress(function () {
-                    saveBtn.appendTo('#' + data.task.id);
+                    saveBtn.appendTo(item);
                     saveBtn.on("click", function (event) {
                         var description = item.find(".inline-edit").val();
                         $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
@@ -170,7 +169,6 @@ function Application() {
         this._storage = storage;
         var that = this;
 
-        //restoring
         this._storage.fetchTasks().forEach(function (task) {
             var taskDTO = task.getDTO();
             $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
@@ -425,7 +423,8 @@ function Application() {
             }
         },
 
-        init: function (eventBus) {
+        init: function () {
+            var eventBus = {};
             this.createWidget(eventBus);
             this.createController(eventBus);
             this.createModel(eventBus);
