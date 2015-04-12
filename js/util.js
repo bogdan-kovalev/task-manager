@@ -1,23 +1,3 @@
-function tryRestoreFromLocal(localStorageKey) {
-    var restoredTasks = [];
-    var localTasksIDs = [];
-    if (window.localStorage.getItem(localStorageKey) == undefined) {
-        window.localStorage.setItem(localStorageKey, "");
-    } else {
-        try {
-            localTasksIDs = JSON.parse(window.localStorage.getItem(localStorageKey));
-            localTasksIDs.forEach(function (entry) {
-                var task = new TaskItem();
-                task.restoreFrom(JSON.parse(window.localStorage.getItem(entry)));
-                restoredTasks.push(task);
-            });
-        } catch (e) {
-            //ignored
-        }
-    }
-    return {tasksIDs: localTasksIDs, tasks: restoredTasks};
-}
-
 function checkTask(task) {
     if (!isValidDescription(task.getDescription())) {
         throw new InvalidTaskError("Description is undefined");

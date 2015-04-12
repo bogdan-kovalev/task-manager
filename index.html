@@ -51,7 +51,9 @@
 <body>
 <script>
     $(function () {
-        Application.init();
+        var app = new Application();
+        var eventBus = {};
+        app.init(eventBus);
     });
 </script>
 </body>
