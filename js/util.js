@@ -6,6 +6,13 @@ function checkTask(task) {
     }
 }
 
+function autoRows(textarea) {
+    textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
+    while (textarea.height() < textarea.get(0).scrollHeight - 10) {
+        textarea.attr('rows', +textarea.attr('rows') + 1);
+    }
+}
+
 function isValidDescription(d) {
     return (d && /\S/.test(d)) ? true : false;
 }

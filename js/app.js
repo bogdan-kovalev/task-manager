@@ -71,7 +71,8 @@ function Application() {
         });
 
         this.newTaskInputSelector.keyup(function (event) {
-            $(this).attr('rows', $(this).val().split(/\r\n|\r|\n/).length);
+            autoRows($(this));
+
             if (isValidDescription($(this).val())) {
                 that.newTaskBtnSelector.removeClass("disabled");
             } else {
@@ -84,6 +85,8 @@ function Application() {
             var item = $('#taskItemTmpl').tmpl([data]);
             item.fadeIn(300);
             item.appendTo(that.taskItemsWrapperSelector);
+            var textarea = item.find(".inline-edit");
+            autoRows(textarea);
 
             // place were task item content appends (buttons etc.)
             var ableToDelete = user == data.task.author;
@@ -100,14 +103,14 @@ function Application() {
             if (ableToChange) {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
-                item.find(".inline-edit").keydown(function () {
+                textarea.keydown(function () {
                     if (event.keyCode == 13 & event.shiftKey) {
                         event.preventDefault();
                     }
                 });
 
-                item.find(".inline-edit").keyup(function (event) {
-                    $(this).attr('rows', $(this).val().split(/\r\n|\r|\n/).length);
+                textarea.keyup(function (event) {
+                    autoRows($(this));
 
                     if (event.keyCode == 27) {
                         $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
@@ -163,9 +166,11 @@ function Application() {
 
         $(eventBus).on(Event.UI_TASK_DESCRIPTION_TAKEN, function (event, data) {
             var taskItem = $("#" + data.taskID);
-            taskItem.find("textarea").val(data.description);
-            taskItem.find("textarea").blur();
             taskItem.find(".save-btn").remove();
+            var textarea = taskItem.find("textarea");
+            textarea.val(data.description);
+            autoRows(textarea);
+            textarea.blur();
         });
     }
 

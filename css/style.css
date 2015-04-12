@@ -1,6 +1,10 @@
+textarea {
+    overflow: hidden;
+    resize: none;
+}
+
 .inline-edit {
     /* Eliminate borders and padding*/
-    height: auto;
     width: 70%;
     border: solid 1px white;
     padding: 5px;
