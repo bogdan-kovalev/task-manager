@@ -53,6 +53,7 @@ function Application() {
             $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
 
             that.newTaskInputSelector.val('');
+            that.newTaskInputSelector.attr('rows', 1);
             $(this).addClass("disabled");
         });
 
@@ -60,17 +61,17 @@ function Application() {
             if (event.keyCode == 13) {
                 if (!event.shiftKey) {
                     event.preventDefault();
+                    var val = $(this).val().trim();
+                    $(this).val(val);
                     that.newTaskBtnSelector.click();
-                } else {
-                    var rows = $(this).attr('rows');
-                    $(this).attr('rows', +rows + 1);
                 }
             } else if (event.keyCode == 27) {
-                //esc
+                $(this).val('');
             }
         });
 
         this.newTaskInputSelector.keyup(function (event) {
+            $(this).attr('rows', $(this).val().split(/\r\n|\r|\n/).length);
             if (isValidDescription($(this).val())) {
                 that.newTaskBtnSelector.removeClass("disabled");
             } else {
@@ -100,16 +101,14 @@ function Application() {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
 
                 item.find(".inline-edit").keydown(function () {
-                    if (event.keyCode == 13) {
-                        if (event.shiftKey) {
-                            event.preventDefault();
-                            var rows = $(this).attr('rows');
-                            $(this).attr('rows', +rows + 1);
-                        }
+                    if (event.keyCode == 13 & event.shiftKey) {
+                        event.preventDefault();
                     }
                 });
 
                 item.find(".inline-edit").keyup(function (event) {
+                    $(this).attr('rows', $(this).val().split(/\r\n|\r|\n/).length);
+
                     if (event.keyCode == 27) {
                         $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
                         return;
