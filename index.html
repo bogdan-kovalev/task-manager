@@ -27,7 +27,7 @@
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item js-actual" id="${task.id}">
             <span>${task.creationDate}</span>
-            <textarea class="inline-edit" rows=1>${task.description}</textarea>
+            <textarea class="inline-edit" rows=$(task.description.split(/\r\n|\r|\n/).length)>${task.description}</textarea>
         </div>
     </script>
 
