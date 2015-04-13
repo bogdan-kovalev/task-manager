@@ -19,6 +19,8 @@ function Application() {
         UI_TASK_FINISHED: "ui-task-finished",
         UI_RESTORE_DESCRIPTION: "ui-restore-task",
         UI_TASK_DESCRIPTION_TAKEN: "ui-task-description-taken",
+        UI_TASK_ASSIGN: "ui-task-assign",
+        UI_TASK_ASSIGNED: "ui-task-assigned",
         MODEL_ADD_TASK: "model-add-task",
         MODEL_TASK_ADDED: "model-task-added",
         MODEL_TASK_RESTORED: "model-task-restored",
@@ -29,7 +31,9 @@ function Application() {
         MODEL_FINISH_TASK: "model-finish-task",
         MODEL_TASK_FINISHED: "model-task-finished",
         MODEL_GET_TASK_DESCRIPTION: "model-get-task-description",
-        MODEL_TASK_DESCRIPTION_RETURNED: "model-task-description-returned"
+        MODEL_TASK_DESCRIPTION_RETURNED: "model-task-description-returned",
+        MODEL_TASK_ASSIGN: "model-task-assign",
+        MODEL_TASK_ASSIGNED: "model-task-assigned"
     };
 
     function Widget(eventBus) {
@@ -88,6 +92,7 @@ function Application() {
             var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
             var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
             var assignInput = $('#assignInputTmpl').tmpl([data]);
+            var assignBtn = $('#assignBtnTmpl').tmpl([data]);
 
 
             taskItem.fadeIn(300);
@@ -115,7 +120,15 @@ function Application() {
 
             if (access.edit) {
                 assignInput.appendTo(taskItem.find('.task-properties'));
+                assignBtn.appendTo(taskItem.find('.task-properties'));
                 assignInput.autocomplete({source: users});
+
+                assignBtn.on("click", function () {
+                    var assignee = assignInput.val();
+                    if ($.inArray(assignee, users) > -1) {
+                        $(eventBus).trigger(Event.UI_TASK_ASSIGN, {taskID: id, assignee: assignee})
+                    }
+                });
 
                 description.keyup(function (event) {
                     Util.autoRows($(this));
@@ -208,6 +221,11 @@ function Application() {
             Util.autoRows(textarea);
             textarea.blur();
         });
+
+        $(eventBus).on(Event.UI_TASK_ASSIGNED, function (event, data) {
+            var taskItem = $("#" + data.taskID);
+            // make assign input static
+        });
     }
 
     function Controller(eventBus) {
@@ -253,6 +271,14 @@ function Application() {
 
         $(eventBus).on(Event.MODEL_TASK_DESCRIPTION_RETURNED, function (event, data) {
             $(eventBus).trigger(Event.UI_TASK_DESCRIPTION_TAKEN, data);
+        });
+
+        $(eventBus).on(Event.UI_TASK_ASSIGN, function (event, data) {
+            $(eventBus).trigger(Event.MODEL_TASK_ASSIGN, data);
+        });
+
+        $(eventBus).on(Event.MODEL_TASK_ASSIGNED, function (event, data) {
+            $(eventBus).trigger(Event.UI_TASK_ASSIGNED, data);
         });
     }
 
@@ -341,6 +367,12 @@ function Application() {
         $(eventBus).on(Event.MODEL_GET_TASK_DESCRIPTION, function (event, data) {
             data.description = model.getTaskByID(data.taskID).getDescription();
             $(eventBus).trigger(Event.MODEL_TASK_DESCRIPTION_RETURNED, data);
+        });
+
+
+        $(eventBus).on(Event.MODEL_TASK_ASSIGN, function (event, data) {
+            model.assignTask(data.taskID, data.assignee);
+            $(eventBus).trigger(Event.MODEL_TASK_ASSIGNED, data);
         });
     }
 
