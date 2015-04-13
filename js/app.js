@@ -183,8 +183,7 @@ function Application() {
                 });
             }
 
-
-            $('.task-taskItem').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
+            $('.task-item').has('.finished').insertAfter(widget.taskItemsWrapper); // move finished down
         });
 
         $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
