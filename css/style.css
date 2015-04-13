@@ -5,7 +5,7 @@ textarea {
 
 .inline-edit {
     /* Eliminate borders and padding*/
-    width: 55%;
+    width: 70%;
     border: solid 1px white;
     padding: 5px;
     margin: 3px 3px 3px 50px;
@@ -34,7 +34,7 @@ textarea {
 }
 
 .task-txt {
-    width: 55%;
+    width: 70%;
     margin: 0px 5px 5px 50px;
     outline: none;
 }
