@@ -92,27 +92,44 @@ function Application() {
                 var deleteBtn = $('#deleteTaskBtnTmpl').tmpl([{}]);
                 deleteBtn.appendTo(item);
 
+                item.hover(function () {
+                        deleteBtn.show();
+                    },
+                    function () {
+                        deleteBtn.hide();
+                    });
+
                 deleteBtn.on("click", function (event) {
                     $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
                 });
             }
 
-            var ableToChange = user == data.task.author;
+            var ableToChange = (user == data.task.author) && (data.task.status == Status.NEW);
             if (ableToChange) {
                 var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
+                var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
 
                 textarea.keyup(function (event) {
                     autoRows($(this));
 
                     if (event.keyCode == 27) {
-                        $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
+                        cancelBtn.click();
                         return;
                     }
 
                     if (isValidDescription($(this).val())) {
+                        if (item.find(cancelBtn).length == 0) {
+                            finishBtn.addClass('disabled');
+                            cancelBtn.appendTo(item);
+                            cancelBtn.on('click', function () {
+                                finishBtn.removeClass('disabled');
+                                $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
+                            });
+                        }
                         if (item.find(saveBtn).length == 0) {
                             saveBtn.appendTo(item);
                             saveBtn.on("click", function (event) {
+                                finishBtn.removeClass('disabled');
                                 var description = item.find(".inline-edit").val();
                                 $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
                                     taskID: data.task.id,
@@ -131,9 +148,18 @@ function Application() {
                 var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
                 finishBtn.appendTo(item);
 
+                item.hover(function () {
+                        finishBtn.show();
+                    },
+                    function () {
+                        finishBtn.hide();
+                    });
+
                 finishBtn.on('click', function () {
-                    var taskID = data.task.id;
-                    $(eventBus).trigger(Event.UI_FINISH_TASK, {taskID: taskID, status: Status.FINISHED});
+                    if (!finishBtn.hasClass('disabled')) {
+                        var taskID = data.task.id;
+                        $(eventBus).trigger(Event.UI_FINISH_TASK, {taskID: taskID, status: Status.FINISHED});
+                    }
                 });
             }
             // end of place were task item content appends (buttons etc.)
@@ -152,7 +178,9 @@ function Application() {
         });
 
         $(eventBus).on(Event.UI_DESCRIPTION_SAVED, function (event, data) {
-            $("#" + data.taskID + " .save-btn").remove();
+            var taskItem = $("#" + data.taskID);
+            taskItem.find(".save-btn").remove();
+            taskItem.find(".cancel-btn").remove();
         });
 
         $(eventBus).on(Event.UI_TASK_FINISHED, function (event, data) {
@@ -166,6 +194,7 @@ function Application() {
         $(eventBus).on(Event.UI_TASK_DESCRIPTION_TAKEN, function (event, data) {
             var taskItem = $("#" + data.taskID);
             taskItem.find(".save-btn").remove();
+            taskItem.find(".cancel-btn").remove();
             var textarea = taskItem.find("textarea");
             textarea.val(data.description);
             autoRows(textarea);
