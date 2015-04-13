@@ -207,6 +207,7 @@ function Application() {
             var taskItem = $("#" + data.taskID);
             taskItem.find(".finish-btn").remove();
             taskItem.find("input.assign").remove();
+            taskItem.find(".assign-btn").remove();
             taskItem.appendTo(widget.taskItemsWrapper);
             taskItem.find("textarea").addClass("finished");
             taskItem.find("textarea").attr('readonly', true);
