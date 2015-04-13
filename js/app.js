@@ -78,6 +78,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
+            $('.no-tasks').hide();
             var taskID = data.task.id;
             var item = $('#taskItemTmpl').tmpl([data]);
             item.fadeIn(300);
@@ -141,7 +142,11 @@ function Application() {
         $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
             $("#" + data.taskID).fadeOut(200, function () {
                 $(this).remove();
+                if (that.taskItemsWrapperSelector.find('.task-item').length == 0) {
+                    $('.no-tasks').show();
+                }
             });
+
         });
 
         $(eventBus).on(Event.UI_DESCRIPTION_SAVED, function (event, data) {
