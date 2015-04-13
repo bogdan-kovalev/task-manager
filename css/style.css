@@ -71,6 +71,9 @@ textarea {
 
 textarea.finished {
     text-decoration: line-through;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .delete-btn {

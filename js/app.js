@@ -126,7 +126,7 @@ function Application() {
                 });
             }
 
-            var ableToFinish = user == data.task.assignee;
+            var ableToFinish = (user == data.task.assignee) && (data.task.status == Status.NEW);
             if (ableToFinish) {
                 var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
                 finishBtn.appendTo(item);
@@ -137,6 +137,8 @@ function Application() {
                 });
             }
             // end of place were task item content appends (buttons etc.)
+
+            $('.task-item').has('.finished').appendTo(that.taskItemsWrapperSelector); // move finished down
         });
 
         $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
@@ -158,6 +160,7 @@ function Application() {
             taskItem.find(".finish-btn").remove();
             taskItem.appendTo(that.taskItemsWrapperSelector);
             taskItem.find("textarea").addClass("finished");
+            taskItem.find("textarea").attr('readonly', true);
         });
 
         $(eventBus).on(Event.UI_TASK_DESCRIPTION_TAKEN, function (event, data) {

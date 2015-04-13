@@ -29,7 +29,11 @@
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item js-actual" id="${task.id}">
             <span>${task.creationDate}</span>
-            <textarea class="inline-edit" rows=1>${task.description}</textarea>
+            <textarea
+                class="inline-edit ${task.status==Status.FINISHED ? 'finished':''}"
+                rows=1
+                ${task.status==Status.FINISHED ? 'readonly':''}
+            >${task.description}</textarea>
         </div>
     </script>
 
