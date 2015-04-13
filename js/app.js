@@ -32,107 +32,104 @@ function Application() {
     };
 
     function Widget(eventBus) {
-        var that = this;
-        var id = Math.floor(Math.random() * 1000);
-        this.widgetClass = 'widget-' + id;
+        var widget = this;
+        widget._class = 'widget-' + Util.generateID();
 
         $('#widgetTmpl').tmpl([this]).appendTo('body');
 
-        this.newTaskInputSelector = $('.' + this.widgetClass + ' .new-task-txt');
-        this.newTaskBtnSelector = $('.' + this.widgetClass + ' .new-task-btn');
-        this.taskItemsWrapperSelector = $('.' + this.widgetClass + ' .task-items-wrapper');
+        widget.newTaskTxt = $('.' + widget._class + ' .new-task-txt');
+        widget.newTaskBtn = $('.' + widget._class + ' .new-task-btn');
+        widget.taskItemsWrapper = $('.' + widget._class + ' .task-items-wrapper');
 
-        this.newTaskBtnSelector.on('click', function (event) {
-            if ($(this).hasClass("disabled")) {
-                return false;
+        widget.newTaskBtn.on('click', function (event) {
+            if (!$(this).hasClass("disabled")) {
+                var description = widget.newTaskTxt.val();
+                var newTask = new TaskItem(description, user);
+                Util.resetTextarea(widget.newTaskTxt);
+                $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
             }
-
-            var description = that.newTaskInputSelector.val();
-            var newTask = new TaskItem(description, user);
-
-            $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
-
-            that.newTaskInputSelector.val('');
-            that.newTaskInputSelector.attr('rows', 1);
-            $(this).addClass("disabled");
         });
 
-        this.newTaskInputSelector.keydown(function (event) {
-            if (event.keyCode == 13 && event.ctrlKey) {
+        widget.newTaskTxt.keydown(function (event) {
+            if (event.keyCode == KeyCode.Enter && event.ctrlKey) {
                 event.preventDefault();
-                trimValue($(this));
-                that.newTaskBtnSelector.click();
-            } else if (event.keyCode == 27) {
+                Util.trimTextareaValue($(this));
+                widget.newTaskBtn.click();
+            } else if (event.keyCode == KeyCode.Esc) {
                 $(this).val('');
             }
         });
 
-        this.newTaskInputSelector.keyup(function (event) {
-            autoRows($(this));
-
-            if (isValidDescription($(this).val())) {
-                that.newTaskBtnSelector.removeClass("disabled");
+        widget.newTaskTxt.keyup(function (event) {
+            Util.autoRows($(this));
+            if (Util.isValidDescription($(this).val())) {
+                widget.newTaskBtn.removeClass("disabled");
             } else {
-                that.newTaskBtnSelector.addClass("disabled");
+                widget.newTaskBtn.addClass("disabled");
             }
         });
 
         $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
             $('.no-tasks').hide();
-            var taskID = data.task.id;
-            var item = $('#taskItemTmpl').tmpl([data]);
-            item.fadeIn(300);
-            item.appendTo(that.taskItemsWrapperSelector);
-            var textarea = item.find(".inline-edit");
-            autoRows(textarea);
 
-            // place were task item content appends (buttons etc.)
-            var ableToDelete = user == data.task.author;
-            if (ableToDelete) {
-                var deleteBtn = $('#deleteTaskBtnTmpl').tmpl([{}]);
-                deleteBtn.appendTo(item);
+            var id = data.task.id;
+            var access = data.access;
 
-                item.hover(function () {
+            var taskItem = $('#taskItemTmpl').tmpl([data]);
+            var deleteBtn = $('#deleteTaskBtnTmpl').tmpl([{}]);
+            var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
+            var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
+            var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
+
+
+            taskItem.fadeIn(300);
+            taskItem.appendTo(widget.taskItemsWrapper);
+
+            var description = taskItem.find(".inline-edit");
+            Util.autoRows(description);
+
+            // place were task taskItem content appends (buttons etc.)
+
+            if (access.delete) {
+                deleteBtn.appendTo(taskItem);
+
+                taskItem.hover(function (event) {
                         deleteBtn.show();
                     },
-                    function () {
+                    function (event) {
                         deleteBtn.hide();
                     });
 
                 deleteBtn.on("click", function (event) {
-                    if (confirm("Are you sure you want to delete this item?")) {
-                        $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
+                    if (confirm("Are you sure you want to delete this taskItem?")) {
+                        $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: id});
                     }
                 });
             }
 
-            var ableToChange = (user == data.task.author) && (data.task.status == Status.NEW);
-            if (ableToChange) {
-                var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
-                var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
+            if (access.edit) {
+                description.keyup(function (event) {
+                    Util.autoRows($(this));
 
-                textarea.keyup(function (event) {
-                    autoRows($(this));
-
-                    if (event.keyCode == 27) {
+                    if (event.keyCode == KeyCode.Esc) {
                         cancelBtn.click();
                         return;
                     }
 
-                    if (isValidDescription($(this).val())) {
-                        if (item.find(cancelBtn).length == 0) {
+                    if (Util.isValidDescription($(this).val())) {
+                        if (taskItem.find(cancelBtn).length == 0) {
                             finishBtn.addClass('disabled');
-                            cancelBtn.appendTo(item);
-                            cancelBtn.on('click', function () {
+                            cancelBtn.appendTo(taskItem);
+                            cancelBtn.on('click', function (event) {
                                 finishBtn.removeClass('disabled');
-                                $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: taskID});
+                                $(eventBus).trigger(Event.UI_RESTORE_DESCRIPTION, {taskID: id});
                             });
                         }
-                        if (item.find(saveBtn).length == 0) {
-                            saveBtn.appendTo(item);
+                        if (taskItem.find(saveBtn).length == 0) {
+                            saveBtn.appendTo(taskItem);
                             saveBtn.on("click", function (event) {
                                 finishBtn.removeClass('disabled');
-                                var description = item.find(".inline-edit").val();
+                                var description = taskItem.find(".inline-edit").val();
                                 $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
                                     taskID: data.task.id,
                                     description: description
@@ -145,12 +142,11 @@ function Application() {
                 });
             }
 
-            var ableToFinish = (user == data.task.assignee) && (data.task.status == Status.NEW);
-            if (ableToFinish) {
-                var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
-                finishBtn.appendTo(item);
+            if (access.finish) {
 
-                item.hover(function () {
+                finishBtn.appendTo(taskItem);
+
+                taskItem.hover(function () {
                         finishBtn.show();
                     },
                     function () {
@@ -164,15 +160,15 @@ function Application() {
                     }
                 });
             }
-            // end of place were task item content appends (buttons etc.)
+            // end of place were task taskItem content appends (buttons etc.)
 
-            $('.task-item').has('.finished').appendTo(that.taskItemsWrapperSelector); // move finished down
+            $('.task-taskItem').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
         });
 
         $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
             $("#" + data.taskID).fadeOut(200, function () {
                 $(this).remove();
-                if (that.taskItemsWrapperSelector.find('.task-item').length == 0) {
+                if (widget.taskItemsWrapper.find('.task-item').length == 0) {
                     $('.no-tasks').show();
                 }
             });
@@ -188,7 +184,7 @@ function Application() {
         $(eventBus).on(Event.UI_TASK_FINISHED, function (event, data) {
             var taskItem = $("#" + data.taskID);
             taskItem.find(".finish-btn").remove();
-            taskItem.appendTo(that.taskItemsWrapperSelector);
+            taskItem.appendTo(widget.taskItemsWrapper);
             taskItem.find("textarea").addClass("finished");
             taskItem.find("textarea").attr('readonly', true);
         });
@@ -199,7 +195,7 @@ function Application() {
             taskItem.find(".cancel-btn").remove();
             var textarea = taskItem.find("textarea");
             textarea.val(data.description);
-            autoRows(textarea);
+            Util.autoRows(textarea);
             textarea.blur();
         });
     }
@@ -252,77 +248,88 @@ function Application() {
 
     function Model(storage, eventBus) {
         this._storage = storage;
-        var that = this;
-
-        this._storage.fetchTasks().forEach(function (task) {
-            var taskDTO = task.getDTO();
-            $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: taskDTO});
-        });
+        var model = this;
 
         var __proto__ = Model.prototype;
 
         __proto__.addTask = function (task) {
-            this._storage.add(task);
+            model._storage.add(task);
         };
 
         __proto__.deleteTask = function (taskID) {
-            this._storage.delete(taskID);
+            model._storage.delete(taskID);
         };
 
         __proto__.assignTask = function (taskID, user) {
-            var task = this._storage.getTaskByID(taskID);
+            var task = model._storage.getTaskByID(taskID);
 
             if (task) {
                 task.assignTo(user);
-                this._storage.update(task);
+                model._storage.update(task);
             }
         };
 
         __proto__.changeTaskDescription = function (taskID, newDescription) {
-            var task = this._storage.getTaskByID(taskID);
+            var task = model._storage.getTaskByID(taskID);
 
             if (task) {
                 task.setDescription(newDescription);
-                this._storage.update(task);
+                model._storage.update(task);
             }
         };
 
         __proto__.changeTaskStatus = function (taskID, newStatus) {
-            var task = this._storage.getTaskByID(taskID);
+            var task = model._storage.getTaskByID(taskID);
 
             if (task) {
                 task.setStatus(newStatus);
-                this._storage.update(task);
+                model._storage.update(task);
             }
         };
 
         __proto__.getTaskByID = function (id) {
-            return this._storage.getTaskByID(id);
+            return model._storage.getTaskByID(id);
         };
 
+        __proto__.getAccessFor = function (task) {
+            return {
+                delete: user == task.getAuthor(),
+                edit: user == task.getAuthor() && task.getStatus() == Status.NEW,
+                finish: user == task.getAssignee() && task.getStatus() == Status.NEW,
+                reassign: user == task.getAuthor() && task.getStatus() == Status.NEW
+            };
+        };
+
+        model._storage.fetchTasks().forEach(function (task) {
+            var access = model.getAccessFor(task);
+            var DTO = task.getDTO();
+            $(eventBus).trigger(Event.MODEL_TASK_RESTORED, {task: DTO, access: access});
+        });
+
         $(eventBus).on(Event.MODEL_ADD_TASK, function (event, data) {
-            that.addTask(data.task);
-            var taskDTO = data.task.getDTO();
-            $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: taskDTO});
+            model.addTask(data.task);
+            var access = model.getAccessFor(data.task);
+            var DTO = data.task.getDTO();
+            $(eventBus).trigger(Event.MODEL_TASK_ADDED, {task: DTO, access: access});
         });
 
         $(eventBus).on(Event.MODEL_DELETE_TASK, function (event, data) {
-            that.deleteTask(data.taskID);
+            model.deleteTask(data.taskID);
             $(eventBus).trigger(Event.MODEL_TASK_DELETED, data);
         });
 
         $(eventBus).on(Event.MODEL_CHANGE_DESCRIPTION, function (event, data) {
-            that.changeTaskDescription(data.taskID, data.description);
+            model.changeTaskDescription(data.taskID, data.description);
             $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, data);
         });
 
         $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
-            that.changeTaskStatus(data.taskID, data.status);
+            model.changeTaskStatus(data.taskID, data.status);
             $(eventBus).trigger(Event.MODEL_TASK_FINISHED, data);
         });
 
         $(eventBus).on(Event.MODEL_GET_TASK_DESCRIPTION, function (event, data) {
-            data.description = that.getTaskByID(data.taskID).getDescription();
+            data.description = model.getTaskByID(data.taskID).getDescription();
             $(eventBus).trigger(Event.MODEL_TASK_DESCRIPTION_RETURNED, data);
         });
     }
@@ -337,23 +344,23 @@ function Application() {
         var __proto__ = TaskItem.prototype;
 
         __proto__.getDescription = function () {
-            return clone(this._description);
+            return Util.clone(this._description);
         };
 
         __proto__.setDescription = function (description) {
-            this._description = clone(description);
+            this._description = Util.clone(description);
         };
 
         __proto__.getAuthor = function () {
-            return clone(this._author);
+            return Util.clone(this._author);
         };
 
         __proto__.assignTo = function (user) {
-            this._assignee = clone(user);
+            this._assignee = Util.clone(user);
         };
 
         __proto__.getAssignee = function () {
-            return clone(this._assignee);
+            return Util.clone(this._assignee);
         };
 
         __proto__.getCreationDate = function () {
@@ -361,15 +368,15 @@ function Application() {
         };
 
         __proto__.getID = function () {
-            return clone(this._timestamp);
+            return Util.clone(this._timestamp);
         };
 
         __proto__.getStatus = function () {
-            return clone(this._status);
+            return Util.clone(this._status);
         };
 
         __proto__.setStatus = function (status) {
-            this._status = clone(status);
+            this._status = Util.clone(status);
         };
 
         __proto__.getDTO = function () {
