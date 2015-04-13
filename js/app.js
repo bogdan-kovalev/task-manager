@@ -40,11 +40,13 @@ function Application() {
         widget.newTaskTxt = $('.' + widget._class + ' .new-task-txt');
         widget.newTaskBtn = $('.' + widget._class + ' .new-task-btn');
         widget.taskItemsWrapper = $('.' + widget._class + ' .task-items-wrapper');
+        widget.assignInput = $('.' + widget._class + ' .assign');
 
-        widget.newTaskBtn.on('click', function (event) {
+        widget.newTaskBtn.on('click', function () {
             if (!$(this).hasClass("disabled")) {
                 var description = widget.newTaskTxt.val();
-                var newTask = new TaskItem(description, user);
+                var assignee = widget.assignInput.val();
+                var newTask = new TaskItem(description, user, assignee);
                 Util.resetTextarea(widget.newTaskTxt);
                 $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
             }
@@ -60,7 +62,7 @@ function Application() {
             }
         });
 
-        widget.newTaskTxt.keyup(function (event) {
+        widget.newTaskTxt.keyup(function () {
             Util.autoRows($(this));
             if (Util.isValidDescription($(this).val())) {
                 widget.newTaskBtn.removeClass("disabled");
@@ -80,6 +82,7 @@ function Application() {
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
             var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
             var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
+            var assignInput = $('#assignInputTmpl').tmpl([data]);
 
 
             taskItem.fadeIn(300);
@@ -88,26 +91,26 @@ function Application() {
             var description = taskItem.find(".inline-edit");
             Util.autoRows(description);
 
-            // place were task taskItem content appends (buttons etc.)
-
             if (access.delete) {
                 deleteBtn.appendTo(taskItem);
 
-                taskItem.hover(function (event) {
+                taskItem.hover(function () {
                         deleteBtn.show();
                     },
-                    function (event) {
+                    function () {
                         deleteBtn.hide();
                     });
 
-                deleteBtn.on("click", function (event) {
-                    if (confirm("Are you sure you want to delete this taskItem?")) {
+                deleteBtn.on("click", function () {
+                    if (confirm("Are you sure you want to delete this item?")) {
                         $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: id});
                     }
                 });
             }
 
             if (access.edit) {
+                assignInput.appendTo(taskItem.find('.task-properties'));
+
                 description.keyup(function (event) {
                     Util.autoRows($(this));
 
@@ -160,7 +163,7 @@ function Application() {
                     }
                 });
             }
-            // end of place were task taskItem content appends (buttons etc.)
+
 
             $('.task-taskItem').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
         });
@@ -184,6 +187,7 @@ function Application() {
         $(eventBus).on(Event.UI_TASK_FINISHED, function (event, data) {
             var taskItem = $("#" + data.taskID);
             taskItem.find(".finish-btn").remove();
+            taskItem.find("input.assign").remove();
             taskItem.appendTo(widget.taskItemsWrapper);
             taskItem.find("textarea").addClass("finished");
             taskItem.find("textarea").attr('readonly', true);
@@ -334,10 +338,10 @@ function Application() {
         });
     }
 
-    function TaskItem(description, author) {
+    function TaskItem(description, author, assignee) {
         this._description = description;
         this._author = author;
-        this._assignee = author;
+        this._assignee = assignee ? assignee : author;
         this._timestamp = new Date().getTime();
         this._status = Status.NEW;
 
