@@ -92,3 +92,7 @@ textarea.finished {
 input.assign {
     width: 15%;
 }
+
+.ui-autocomplete, .task-properties {
+    font-size: 12px;
+}

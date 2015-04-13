@@ -1,4 +1,5 @@
-var user = "Bogdan";
+var currentUser = "Bogdan";
+var users = [currentUser, "Patric", "Bob", "Salvador"];
 
 function Application() {
     Status = {
@@ -46,7 +47,7 @@ function Application() {
             if (!$(this).hasClass("disabled")) {
                 var description = widget.newTaskTxt.val();
                 var assignee = widget.assignInput.val();
-                var newTask = new TaskItem(description, user, assignee);
+                var newTask = new TaskItem(description, currentUser, assignee);
                 Util.resetTextarea(widget.newTaskTxt);
                 $(eventBus).trigger(Event.UI_NEW_TASK, {task: newTask});
             }
@@ -69,6 +70,10 @@ function Application() {
             } else {
                 widget.newTaskBtn.addClass("disabled");
             }
+        });
+
+        widget.assignInput.keyup(function () {
+
         });
 
         $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
@@ -110,6 +115,7 @@ function Application() {
 
             if (access.edit) {
                 assignInput.appendTo(taskItem.find('.task-properties'));
+                assignInput.autocomplete({source: users});
 
                 description.keyup(function (event) {
                     Util.autoRows($(this));
@@ -297,10 +303,10 @@ function Application() {
 
         __proto__.getAccessFor = function (task) {
             return {
-                delete: user == task.getAuthor(),
-                edit: user == task.getAuthor() && task.getStatus() == Status.NEW,
-                finish: user == task.getAssignee() && task.getStatus() == Status.NEW,
-                reassign: user == task.getAuthor() && task.getStatus() == Status.NEW
+                delete: currentUser == task.getAuthor(),
+                edit: currentUser == task.getAuthor() && task.getStatus() == Status.NEW,
+                finish: currentUser == task.getAssignee() && task.getStatus() == Status.NEW,
+                reassign: currentUser == task.getAuthor() && task.getStatus() == Status.NEW
             };
         };
 
