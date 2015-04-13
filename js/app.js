@@ -100,7 +100,9 @@ function Application() {
                     });
 
                 deleteBtn.on("click", function (event) {
-                    $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
+                    if (confirm("Are you sure you want to delete this item?")) {
+                        $(eventBus).trigger(Event.UI_DELETE_TASK, {taskID: taskID});
+                    }
                 });
             }
 
