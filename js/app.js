@@ -124,6 +124,7 @@ function Application() {
                 assignInput.autocomplete({source: users});
 
                 assignBtn.on("click", function () {
+                    console.log(id);
                     var assignee = assignInput.val();
                     if ($.inArray(assignee, users) > -1) {
                         $(eventBus).trigger(Event.UI_TASK_ASSIGN, {taskID: id, assignee: assignee})

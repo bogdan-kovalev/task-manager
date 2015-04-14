@@ -21,7 +21,7 @@
         <div class="widget ${_class}">
             <div class="new-task">
                 <textarea class="task-txt new-task-txt" rows=1 placeholder="Enter your task description"></textarea>
-                <input class='assign' placeholder="Assign to"></input>
+                <input class='assign inline-edit' placeholder="Assign to"></input>
                 <a class="btn disabled new-task-btn">
                     <span>New task</span>
                 </a>
@@ -34,7 +34,10 @@
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item js-actual" id="${task.id}">
-            <div class="task-properties ui-widget">${task.creationDate}</div>
+            <div class="task-properties ui-widget">
+            ${task.creationDate}
+            <span><b>Assigned to:</b></span>
+            </div>
             <textarea
                 class="inline-edit ${task.status==Status.FINISHED ? 'finished':''}"
                 rows=1
@@ -76,7 +79,7 @@
     </script>
 
     <script id="assignInputTmpl" type="text/x-jquery-tmpl">
-        <input class='assign' placeholder="Assign to" value="${task.assignee !== task.author ? task.assignee : ''}">
+        <input class='assign inline-edit' placeholder="Assign to" value="${task.assignee !== task.author ? task.assignee : ''}">
     </script>
 </head>
 <body>
