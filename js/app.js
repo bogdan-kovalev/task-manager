@@ -152,7 +152,7 @@ function Application() {
                             saveBtn.appendTo(taskItem);
                             saveBtn.on("click", function (event) {
                                 finishBtn.removeClass('disabled');
-                                var description = taskItem.find(".inline-edit").val();
+                                var description = taskItem.find("textarea.inline-edit").val();
                                 $(eventBus).trigger(Event.UI_SAVE_DESCRIPTION, {
                                     taskID: data.task.id,
                                     description: description

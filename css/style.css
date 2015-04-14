@@ -5,6 +5,7 @@ input, textarea {
 textarea {
     resize: none;
     font-size: 14px;
+    overflow: hidden;
 }
 
 .inline-edit {
