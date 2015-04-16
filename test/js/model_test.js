@@ -1,9 +1,9 @@
 QUnit.test("ADD NEW TASK", function (assert) {
     var eventBus = {};
-    var storage = new Storage("model-test-storage");
-    var model = new Model(storage, eventBus);
+    var app = new Application();
+    var model = app.createModel(eventBus);
 
-    var newTask = new TaskItem("Test description", "Test user");
+    var newTask = app.createTaskItem("Test description", "Test user");
 
     $(eventBus).on(Event.MODEL_TASK_ADDED, function (event, data) {
         var task = model.getTaskByID(newTask.getID());
@@ -11,34 +11,31 @@ QUnit.test("ADD NEW TASK", function (assert) {
     });
 
     $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
-
-    storage.clear();
 });
 
 QUnit.test("DELETE TASK", function (assert) {
     var eventBus = {};
-    var storage = new Storage("model-test-storage");
-    var model = new Model(storage, eventBus);
+    var app = new Application();
+    var model = app.createModel(eventBus);
 
-    var newTask = new TaskItem("Test description", "Test user");
+    var newTask = app.createTaskItem("Test description", "Test user");
 
     $(eventBus).on(Event.MODEL_TASK_DELETED, function (event, data) {
         var task = model.getTaskByID(newTask.getID());
-        assert.deepEqual(task, null, "Passed!");
+        assert.deepEqual(task, undefined, "Passed!");
     });
 
     $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
     $(eventBus).trigger(Event.MODEL_DELETE_TASK, {taskID: newTask.getID()});
 
-    storage.clear();
 });
 
 QUnit.test("CHANGE DESCRIPTION", function (assert) {
     var eventBus = {};
-    var storage = new Storage("model-test-storage");
-    var model = new Model(storage, eventBus);
+    var app = new Application();
+    var model = app.createModel(eventBus);
 
-    var newTask = new TaskItem("Test description", "Test user");
+    var newTask = app.createTaskItem("Test description", "Test user");
     var newDescription = "New description";
 
     $(eventBus).on(Event.MODEL_DESCRIPTION_CHANGED, function (event, data) {
@@ -49,5 +46,21 @@ QUnit.test("CHANGE DESCRIPTION", function (assert) {
     $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
     $(eventBus).trigger(Event.MODEL_CHANGE_DESCRIPTION, {taskID: newTask.getID(), description: newDescription});
 
-    storage.clear();
+});
+
+QUnit.test("ASSIGN", function (assert) {
+    var eventBus = {};
+    var app = new Application();
+    var model = app.createModel(eventBus);
+
+    var newTask = app.createTaskItem("Test description", "Test user");
+    var newAssignee = "Test assignee";
+
+    $(eventBus).on(Event.MODEL_TASK_ASSIGNED, function (event, data) {
+        var task = model.getTaskByID(newTask.getID());
+        assert.deepEqual(task.getAssignee(), newAssignee, "Passed!");
+    });
+
+    $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
+    $(eventBus).trigger(Event.MODEL_TASK_ASSIGN, {taskID: newTask.getID(), assignee: newAssignee});
 });

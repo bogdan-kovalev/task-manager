@@ -541,7 +541,7 @@ function Application() {
     return {
         createWidget: function (eventBus) {
             if (eventBus) {
-                var widget = new Widget(eventBus);
+                return new Widget(eventBus);
             } else {
                 console.error("Widget wasn't created [Event bus is undefined]");
             }
@@ -549,7 +549,7 @@ function Application() {
 
         createController: function (eventBus) {
             if (eventBus) {
-                var controller = new Controller(eventBus);
+                return new Controller(eventBus);
             } else {
                 console.error("Controller wasn't created [Event bus is undefined]");
             }
@@ -557,10 +557,14 @@ function Application() {
 
         createModel: function (eventBus) {
             if (eventBus) {
-                var model = new Model(new Storage(), eventBus);
+                return new Model(new Storage(), eventBus);
             } else {
                 console.error("Model wasn't created [Event bus is undefined]");
             }
+        },
+
+        createTaskItem: function (description, author, assignee) {
+            return new TaskItem(description, author, assignee);
         },
 
         init: function () {
