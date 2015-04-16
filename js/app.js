@@ -10,17 +10,13 @@ function Application() {
 
     Event = {
         UI_NEW_TASK: "ui-new-task",
-        UI_ADD_TASK: "ui-add-task",
         UI_DELETE_TASK: "ui-delete-task",
         UI_TASK_DELETED: "ui-task-deleted",
         UI_SAVE_DESCRIPTION: "ui-save-description",
-        UI_DESCRIPTION_SAVED: "ui-description-saved",
         UI_FINISH_TASK: "ui-finish-task",
-        UI_TASK_FINISHED: "ui-task-finished",
         UI_RESTORE_TASK: "ui-restore-task",
-        UI_TASK_TAKEN: "ui-task-description-taken",
         UI_TASK_ASSIGN: "ui-task-assign",
-        UI_TASK_ASSIGNED: "ui-task-assigned",
+        UI_RENDER_TASK: "ui-render-task-item",
         MODEL_ADD_TASK: "model-add-task",
         MODEL_TASK_ADDED: "model-task-added",
         MODEL_TASK_RESTORED: "model-task-restored",
@@ -40,6 +36,7 @@ function Application() {
         var widget = this;
 
         function renderTaskItem(data) {
+            $('.no-tasks').hide();
             var id = data.task.id;
             var access = data.access;
 
@@ -148,6 +145,20 @@ function Application() {
             $('.task-item').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
         } // end renderTaskItem()
 
+        $(eventBus).on(Event.UI_RENDER_TASK, function (event, data) {
+            renderTaskItem(data);
+        });
+
+        $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
+            $("#" + data.taskID).fadeOut(200, function () {
+                $(this).remove();
+                if (widget.taskItemsWrapper.find('.task-item').length == 0) {
+                    $('.no-tasks').show();
+                }
+            });
+
+        });
+
         widget._class = 'widget-' + Util.generateID();
 
         $('#widgetTmpl').tmpl([this]).appendTo('body');
@@ -158,6 +169,10 @@ function Application() {
         widget.assignInput = $('.' + widget._class + ' .assign');
 
         widget.newTaskBtn.on('click', function () {
+            if ($.inArray($(widget.assignInput).val(), users) < 0) {
+                $(widget.assignInput).focus();
+                return;
+            }
             if (!$(this).hasClass("disabled")) {
                 var description = widget.newTaskTxt.val();
                 var assignee = widget.assignInput.val();
@@ -186,40 +201,7 @@ function Application() {
             }
         });
 
-        widget.assignInput.keyup(function () {
-
-        });
-
-        $(eventBus).on(Event.UI_ADD_TASK, function (event, data) {
-            $('.no-tasks').hide();
-            renderTaskItem(data);
-        });
-
-        $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
-            $("#" + data.taskID).fadeOut(200, function () {
-                $(this).remove();
-                if (widget.taskItemsWrapper.find('.task-item').length == 0) {
-                    $('.no-tasks').show();
-                }
-            });
-
-        });
-
-        $(eventBus).on(Event.UI_DESCRIPTION_SAVED, function (event, data) {
-            renderTaskItem(data);
-        });
-
-        $(eventBus).on(Event.UI_TASK_FINISHED, function (event, data) {
-            renderTaskItem(data);
-        });
-
-        $(eventBus).on(Event.UI_TASK_TAKEN, function (event, data) {
-            renderTaskItem(data);
-        });
-
-        $(eventBus).on(Event.UI_TASK_ASSIGNED, function (event, data) {
-            renderTaskItem(data);
-        });
+        widget.assignInput.autocomplete({source: users});
     }
 
     function Controller(eventBus) {
@@ -228,11 +210,11 @@ function Application() {
         });
 
         $(eventBus).on(Event.MODEL_TASK_ADDED, function (event, data) {
-            $(eventBus).trigger(Event.UI_ADD_TASK, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
         $(eventBus).on(Event.MODEL_TASK_RESTORED, function (event, data) {
-            $(eventBus).trigger(Event.UI_ADD_TASK, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
         $(eventBus).on(Event.UI_DELETE_TASK, function (event, data) {
@@ -248,7 +230,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.MODEL_DESCRIPTION_CHANGED, function (event, data) {
-            $(eventBus).trigger(Event.UI_DESCRIPTION_SAVED, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
         $(eventBus).on(Event.UI_FINISH_TASK, function (event, data) {
@@ -256,7 +238,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.MODEL_TASK_FINISHED, function (event, data) {
-            $(eventBus).trigger(Event.UI_TASK_FINISHED, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
         $(eventBus).on(Event.UI_RESTORE_TASK, function (event, data) {
@@ -264,7 +246,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.MODEL_TASK_RETURNED, function (event, data) {
-            $(eventBus).trigger(Event.UI_TASK_TAKEN, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
         $(eventBus).on(Event.UI_TASK_ASSIGN, function (event, data) {
@@ -272,7 +254,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.MODEL_TASK_ASSIGNED, function (event, data) {
-            $(eventBus).trigger(Event.UI_TASK_ASSIGNED, data);
+            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
     }
 
