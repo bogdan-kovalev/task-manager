@@ -145,20 +145,6 @@ function Application() {
             $('.task-item').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
         } // end renderTaskItem()
 
-        $(eventBus).on(Event.UI_RENDER_TASK, function (event, data) {
-            renderTaskItem(data);
-        });
-
-        $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
-            $("#" + data.taskID).fadeOut(200, function () {
-                $(this).remove();
-                if (widget.taskItemsWrapper.find('.task-item').length == 0) {
-                    $('.no-tasks').show();
-                }
-            });
-
-        });
-
         widget._class = 'widget-' + Util.generateID();
 
         $('#widgetTmpl').tmpl([this]).appendTo('body');
@@ -169,7 +155,8 @@ function Application() {
         widget.assignInput = $('.' + widget._class + ' .assign');
 
         widget.newTaskBtn.on('click', function () {
-            if ($.inArray($(widget.assignInput).val(), users) < 0) {
+            var val = $(widget.assignInput).val();
+            if (val != '' && $.inArray(val, users) < 0) {
                 $(widget.assignInput).focus();
                 return;
             }
@@ -202,6 +189,22 @@ function Application() {
         });
 
         widget.assignInput.autocomplete({source: users});
+
+
+        /* ## EVENTS ## */
+
+        $(eventBus).on(Event.UI_RENDER_TASK, function (event, data) {
+            renderTaskItem(data);
+        });
+
+        $(eventBus).on(Event.UI_TASK_DELETED, function (event, data) {
+            $("#" + data.taskID).fadeOut(200, function () {
+                $(this).remove();
+                if (widget.taskItemsWrapper.find('.task-item').length == 0) {
+                    $('.no-tasks').show();
+                }
+            });
+        });
     }
 
     function Controller(eventBus) {
