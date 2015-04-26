@@ -176,6 +176,7 @@ function Application() {
         widget.newTaskBtn = $('.' + widget._class + ' .new-task-btn');
         widget.taskItemsWrapper = $('.' + widget._class + ' .task-items-wrapper');
         widget.assignInput = $('.' + widget._class + ' .assign');
+        widget.onlyAssignedCheckbox = $("#only-assigned-checkbox");
 
         widget.newTaskBtn.on('click', function () {
             var val = $(widget.assignInput).val();
@@ -212,7 +213,13 @@ function Application() {
         });
 
         widget.assignInput.autocomplete({source: users});
-
+        widget.onlyAssignedCheckbox.change(function () {
+            if ($(this).prop("checked")) {
+                $('.task-item').not('.assigned').hide();
+            } else {
+                $('.task-item').show();
+            }
+        });
 
         /* ## EVENTS ## */
 
@@ -549,7 +556,7 @@ function Application() {
             this._taskList = new TaskList();
         };
 
-        Storage.prototype.fetchTasks = function (task) {
+        Storage.prototype.fetchTasks = function () {
             return this._taskList.asArray();
         };
 
