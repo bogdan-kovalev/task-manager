@@ -38,7 +38,7 @@
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
         <div class="task-item ${task.status}" id="${task.id}">
             <div class="task-properties ui-widget">
-            ${task.creationDate}
+            ${task.creationDate.toLocaleDateString()+" "+task.creationDate.toLocaleTimeString()}
             <span><b>Assigned to:</b></span>
             </div>
             <textarea
