@@ -85,7 +85,7 @@ textarea:focus {
     padding-right: 5px;
 }
 
-textarea.finished {
+.finished textarea {
     text-decoration: line-through;
     box-shadow: none !important;
     border: none !important;

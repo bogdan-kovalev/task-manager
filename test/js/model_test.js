@@ -62,5 +62,5 @@ QUnit.test("ASSIGN", function (assert) {
     });
 
     $(eventBus).trigger(Event.MODEL_ADD_TASK, {task: newTask});
-    $(eventBus).trigger(Event.MODEL_TASK_ASSIGN, {taskID: newTask.getID(), assignee: newAssignee});
+    $(eventBus).trigger(Event.MODEL_ASSIGN_TASK, {taskID: newTask.getID(), assignee: newAssignee});
 });

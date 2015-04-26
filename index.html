@@ -33,13 +33,13 @@
     </script>
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
-        <div class="task-item js-actual" id="${task.id}">
+        <div class="task-item ${task.status}" id="${task.id}">
             <div class="task-properties ui-widget">
             ${task.creationDate}
             <span><b>Assigned to:</b></span>
             </div>
             <textarea
-                class="inline-edit ${task.status==Status.FINISHED ? 'finished':''}"
+                class="inline-edit"
                 rows=1
                 ${task.status==Status.FINISHED ? 'readonly':''}
             >${task.description}</textarea>
@@ -74,6 +74,12 @@
     <script id="assignBtnTmpl" type="text/x-jquery-tmpl">
         <a class="btn assign-btn">
             <span>Assign</span>
+        </a>
+    </script>
+
+    <script id="reopenBtnTmpl" type="text/x-jquery-tmpl">
+        <a class="btn reopen-btn">
+            <span>Re-open</span>
         </a>
 
     </script>

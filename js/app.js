@@ -5,7 +5,7 @@ function Application() {
     Status = {
         NEW: "new",
         FINISHED: "finished",
-        CANCELED: "canceled"
+        REOPENED: "reopened"
     };
 
     Event = {
@@ -13,7 +13,8 @@ function Application() {
         UI_DELETE_TASK: "ui-delete-task",
         UI_TASK_DELETED: "ui-task-deleted",
         UI_SAVE_DESCRIPTION: "ui-save-description",
-        UI_FINISH_TASK: "ui-finish-task",
+        UI_CHANGE_TASK_STATUS: "ui-change-task-status",
+        UI_TASK_STATUS_CHANGED: "ui-task-status_changed",
         UI_RESTORE_TASK: "ui-restore-task",
         UI_TASK_ASSIGN: "ui-task-assign",
         UI_RENDER_TASK: "ui-render-task-item",
@@ -24,11 +25,11 @@ function Application() {
         MODEL_TASK_DELETED: "model-task-deleted",
         MODEL_CHANGE_DESCRIPTION: "model-change-description",
         MODEL_DESCRIPTION_CHANGED: "model-description-changed",
-        MODEL_FINISH_TASK: "model-finish-task",
-        MODEL_TASK_FINISHED: "model-task-finished",
+        MODEL_CHANGE_TASK_STATUS: "model-finish-task",
+        MODEL_TASK_STATUS_CHANGED: "model-task-finished",
         MODEL_GET_TASK: "model-get-task-description",
         MODEL_TASK_RETURNED: "model-task-description-returned",
-        MODEL_TASK_ASSIGN: "model-task-assign",
+        MODEL_ASSIGN_TASK: "model-assign-task",
         MODEL_TASK_ASSIGNED: "model-task-assigned"
     };
 
@@ -38,24 +39,31 @@ function Application() {
         function renderTaskItem(data) {
             $('.no-tasks').hide();
             var id = data.task.id;
+            var status = data.task.status;
             var access = data.access;
 
             var taskItem = $('#taskItemTmpl').tmpl([data]);
+
             var deleteBtn = $('#deleteTaskBtnTmpl').tmpl([{}]);
             var saveBtn = $('#saveTaskBtnTmpl').tmpl([{}]);
             var cancelBtn = $('#cancelEditBtnTmpl').tmpl([{}]);
             var finishBtn = $('#finishTaskBtnTmpl').tmpl([{}]);
+            var assignBtn = $('#assignBtnTmpl').tmpl([{}]);
+            var reopenBtn = $('#reopenBtnTmpl').tmpl([{}]);
+
             var assignInput = $('#assignInputTmpl').tmpl([data]);
-            var assignBtn = $('#assignBtnTmpl').tmpl([data]);
 
 
             taskItem.fadeIn(300);
             if ($('#' + id).length) {
-                // replace itself
-                taskItem.insertAfter($('#' + id));
-                $('#' + id).remove();
+                $('#' + id).replaceWith(taskItem);
             } else {
-                taskItem.appendTo(widget.taskItemsWrapper);
+                var firstFinished = widget.taskItemsWrapper.find('.finished:first');
+                if (firstFinished.length) {
+                    taskItem.insertBefore(firstFinished);
+                } else {
+                    taskItem.appendTo(widget.taskItemsWrapper);
+                }
             }
 
             var description = taskItem.find(".inline-edit");
@@ -137,12 +145,27 @@ function Application() {
                 finishBtn.on('click', function () {
                     if (!finishBtn.hasClass('disabled')) {
                         var taskID = data.task.id;
-                        $(eventBus).trigger(Event.UI_FINISH_TASK, {taskID: taskID, status: Status.FINISHED});
+                        $(eventBus).trigger(Event.UI_CHANGE_TASK_STATUS, {taskID: taskID, status: Status.FINISHED});
                     }
                 });
             }
 
-            $('.task-item').has('.finished').appendTo(widget.taskItemsWrapper); // move finished down
+            if (access.reopen) {
+                reopenBtn.appendTo(taskItem);
+
+                taskItem.hover(function () {
+                        reopenBtn.show();
+                    },
+                    function () {
+                        reopenBtn.hide();
+                    });
+
+                reopenBtn.on('click', function () {
+                    var taskID = data.task.id;
+                    $(eventBus).trigger(Event.UI_CHANGE_TASK_STATUS, {taskID: taskID, status: Status.REOPENED});
+                });
+            }
+
         } // end renderTaskItem()
 
         widget._class = 'widget-' + Util.generateID();
@@ -205,6 +228,17 @@ function Application() {
                 }
             });
         });
+
+        $(eventBus).on(Event.UI_TASK_STATUS_CHANGED, function (event, data) {
+            var taskItem = $('#' + data.task.id);
+            var status = data.task.status;
+            if (status == Status.FINISHED) {
+                taskItem.appendTo(widget.taskItemsWrapper);
+            } else if (status == Status.REOPENED) {
+                taskItem.prependTo(widget.taskItemsWrapper);
+            }
+            renderTaskItem(data);
+        });
     }
 
     function Controller(eventBus) {
@@ -236,12 +270,12 @@ function Application() {
             $(eventBus).trigger(Event.UI_RENDER_TASK, data);
         });
 
-        $(eventBus).on(Event.UI_FINISH_TASK, function (event, data) {
-            $(eventBus).trigger(Event.MODEL_FINISH_TASK, data);
+        $(eventBus).on(Event.UI_CHANGE_TASK_STATUS, function (event, data) {
+            $(eventBus).trigger(Event.MODEL_CHANGE_TASK_STATUS, data);
         });
 
-        $(eventBus).on(Event.MODEL_TASK_FINISHED, function (event, data) {
-            $(eventBus).trigger(Event.UI_RENDER_TASK, data);
+        $(eventBus).on(Event.MODEL_TASK_STATUS_CHANGED, function (event, data) {
+            $(eventBus).trigger(Event.UI_TASK_STATUS_CHANGED, data);
         });
 
         $(eventBus).on(Event.UI_RESTORE_TASK, function (event, data) {
@@ -253,7 +287,7 @@ function Application() {
         });
 
         $(eventBus).on(Event.UI_TASK_ASSIGN, function (event, data) {
-            $(eventBus).trigger(Event.MODEL_TASK_ASSIGN, data);
+            $(eventBus).trigger(Event.MODEL_ASSIGN_TASK, data);
         });
 
         $(eventBus).on(Event.MODEL_TASK_ASSIGNED, function (event, data) {
@@ -309,9 +343,10 @@ function Application() {
         __proto__.getAccessFor = function (task) {
             return {
                 delete: currentUser == task.getAuthor(),
-                edit: currentUser == task.getAuthor() && task.getStatus() == Status.NEW,
-                finish: currentUser == task.getAssignee() && task.getStatus() == Status.NEW,
-                reassign: currentUser == task.getAuthor() && task.getStatus() == Status.NEW
+                edit: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED,
+                finish: currentUser == task.getAssignee() && task.getStatus() != Status.FINISHED,
+                reopen: currentUser == task.getAssignee() && task.getStatus() == Status.FINISHED,
+                reassign: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED
             };
         };
 
@@ -341,12 +376,12 @@ function Application() {
             $(eventBus).trigger(Event.MODEL_DESCRIPTION_CHANGED, {task: DTO, access: access});
         });
 
-        $(eventBus).on(Event.MODEL_FINISH_TASK, function (event, data) {
+        $(eventBus).on(Event.MODEL_CHANGE_TASK_STATUS, function (event, data) {
             model.changeTaskStatus(data.taskID, data.status);
             var task = model.getTaskByID(data.taskID);
             var access = model.getAccessFor(task);
             var DTO = task.getDTO();
-            $(eventBus).trigger(Event.MODEL_TASK_FINISHED, {task: DTO, access: access});
+            $(eventBus).trigger(Event.MODEL_TASK_STATUS_CHANGED, {task: DTO, access: access});
         });
 
         $(eventBus).on(Event.MODEL_GET_TASK, function (event, data) {
@@ -357,7 +392,7 @@ function Application() {
         });
 
 
-        $(eventBus).on(Event.MODEL_TASK_ASSIGN, function (event, data) {
+        $(eventBus).on(Event.MODEL_ASSIGN_TASK, function (event, data) {
             model.assignTask(data.taskID, data.assignee);
             var task = model.getTaskByID(data.taskID);
             var access = model.getAccessFor(task);
