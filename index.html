@@ -27,7 +27,7 @@
                 </a>
             </div>
             <div class="widget-properties">
-                <input type="checkbox" id="only-assigned-checkbox"/><b>Only assigned tasks</b>
+                <input type="checkbox" id="only-assigned-checkbox"/><b>My tasks assigned to others</b>
             </div>
             <div class="task-items-wrapper">
                 <div class="no-tasks">There are no tasks available to you yet</div>
@@ -36,7 +36,7 @@
     </script>
 
     <script id="taskItemTmpl" type="text/x-jquery-tmpl">
-        <div class="task-item ${task.status} ${task.assignee !== task.author ? 'assigned' : ''}" id="${task.id}">
+        <div class="task-item ${task.status}" id="${task.id}">
             <div class="task-properties ui-widget">
             ${task.creationDate}
             <span><b>Assigned to:</b></span>

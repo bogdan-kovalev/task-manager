@@ -66,6 +66,10 @@ function Application() {
                 }
             }
 
+            if (data.task.author == currentUser && data.task.assignee != currentUser) {
+                taskItem.addClass('assigned');
+            }
+
             var description = taskItem.find(".inline-edit");
             Util.autoRows(description);
 
