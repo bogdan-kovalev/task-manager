@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <title ng-bind="customAppTitle != null ? customAppTitle : defaultAppTitle || 'Todo List'"></title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+</head>
+
+<body>
+
+<!--libraries-->
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="http://underscorejs.org/underscore.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
+
+<!-- Include -->
+<script type="text/javascript" src="./script/service/tasklist_back.js"></script>
+<script type="text/javascript" src="./script/controller/tasklist_front.js"></script>
+<script type="text/javascript" src="./script/app.js"></script>
+<script type="text/javascript" src="./script/util.js"></script>
+
+<div class="widget">
+
+    <div class="new-task" ng-controller='newTask'>
+
+        <textarea ng-model='description' class="task-txt new-task-txt" rows=1
+                  placeholder="Enter your task description"></textarea>
+
+        <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
+
+        <a ng-click="addTask()" class="btn new-task-btn {{checkDescription(description) ? '' : 'disabled'}}">
+            <span>New task</span>
+        </a>
+
+    </div>
+
+    <div class="widget-properties">
+        <input type="checkbox" id="only-assigned-checkbox"/>
+        <label for="only-assigned-checkbox"><b>My tasks assigned to others</b></label>
+    </div>
+    <div class="task-items-wrapper">
+        <div class="no-tasks">There are no tasks available to you yet</div>
+    </div>
+</div>
+
+</body>
+</html>
