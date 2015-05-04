@@ -76,7 +76,6 @@ textarea:focus {
 
 .finish-btn {
     float: right;
-    display: none;
 }
 
 .task-item {
@@ -93,7 +92,6 @@ textarea:focus {
 
 .delete-btn {
     float: right;
-    display: none;
 }
 
 .reopen-btn {
