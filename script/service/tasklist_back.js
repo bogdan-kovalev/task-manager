@@ -3,7 +3,7 @@
  */
 
 angular.module('tasklist-back', ['utils']).
-    factory('Model', function (Utils) {
+    factory('Tasks', function (Utils) {
 
         function Model(storage) {
             this._storage = storage;
@@ -11,9 +11,9 @@ angular.module('tasklist-back', ['utils']).
 
             var __proto__ = Model.prototype;
 
-            __proto__.addTask = function (task) {
+            __proto__.addTask = function (description, author, assignee) {
+                var task = new TaskItem(description, author, assignee);
                 model._storage.add(task);
-                console.log('task added ' + task);
             };
 
             __proto__.deleteTask = function (taskID) {
@@ -51,6 +51,18 @@ angular.module('tasklist-back', ['utils']).
                 return model._storage.getTaskByID(id);
             };
 
+
+            __proto__.getTasksAndAccesses = function () {
+                var ret = [];
+                this._storage.fetchTasks().forEach(function (task) {
+                    ret.push({
+                        task: task.getDTO(),
+                        access: model.getAccessFor(task)
+                    });
+                });
+                return ret;
+            };
+
             __proto__.getAccessFor = function (task) {
                 return {
                     delete: currentUser == task.getAuthor(),
@@ -60,16 +72,12 @@ angular.module('tasklist-back', ['utils']).
                     reassign: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED
                 };
             };
-
-            __proto__.newTaskItem = function (description, author, assignee) {
-                return new TaskItem(description, author, assignee);
-            };
         }
 
         function TaskItem(description, author, assignee) {
-            this._description = description;
-            this._author = author;
-            this._assignee = assignee && assignee != '' ? assignee : author;
+            this._description = Utils.clone(description);
+            this._author = Utils.clone(author);
+            this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
             this._timestamp = new Date().getTime();
             this._status = Status.NEW;
 
@@ -128,7 +136,7 @@ angular.module('tasklist-back', ['utils']).
                 this._assignee = data._assignee;
                 this._timestamp = data._timestamp;
                 this._status = data._status;
-            }
+            };
         }
 
         function TaskList(array) {

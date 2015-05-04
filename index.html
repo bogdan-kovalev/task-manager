@@ -22,9 +22,9 @@
 <script type="text/javascript" src="./script/app.js"></script>
 <script type="text/javascript" src="./script/util.js"></script>
 
-<div class="widget">
+<div class="widget" ng-controller="widgetController">
 
-    <div class="new-task" ng-controller='newTask'>
+    <div class="new-task">
 
         <textarea ng-model='description' class="task-txt new-task-txt" rows=1
                   placeholder="Enter your task description"></textarea>
@@ -42,7 +42,19 @@
         <label for="only-assigned-checkbox"><b>My tasks assigned to others</b></label>
     </div>
     <div class="task-items-wrapper">
-        <div class="no-tasks">There are no tasks available to you yet</div>
+        <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
+
+        <div ng-repeat="item in items" class="task-item {{item.task.status}}" id="{{item.task.id}}">
+            <div class="task-properties ui-widget">
+                {{item.task.creationDate.toLocaleDateString()+" "+item.task.creationDate.toLocaleTimeString()}}
+                <span><b>Assigned to:</b></span>
+            </div>
+            <textarea class="inline-edit" rows=1
+                      {{(item.task.status== Status.FINISHED || !item.access.edit) ? 'readonly':''}}>
+            {{item.task.description}}
+            </textarea>
+        </div>
+
     </div>
 </div>
 
