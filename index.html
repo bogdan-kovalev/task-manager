@@ -27,11 +27,11 @@
     <form name="newTaskForm" novalidate ng-submit="addTask();">
         <div class="new-task">
             <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1
-                  placeholder="Enter your task description"></textarea>
+                      placeholder="Enter your task description"></textarea>
 
             <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
 
-            <input type="submit" class="btn new-task-btn"
+            <input type="submit" class="btn new-task-btn" value="New task"
                    ng-disabled="newTaskForm.description.$invalid">
         </div>
     </form>
@@ -44,33 +44,28 @@
         <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
         <div ng-repeat="item in items" class="task-item {{item.task.status}}" id="{{item.task.id}}">
-            <div class="task-properties ui-widget">
-                {{item.task.creationDate.toLocaleDateString()+" "+item.task.creationDate.toLocaleTimeString()}}
-                <span><b>Assigned to:</b></span>
-                <input ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
-                       value="{{item.task.assignee !== item.task.author ? item.task.assignee : ''}}">
-                <a ng-show="item.access.edit" class="btn assign-btn">
-                    <span>Assign</span>
-                </a>
-            </div>
-            <textarea class="inline-edit" rows=1 ng-readonly="!item.access.edit">
-                {{item.task.description}}
-            </textarea>
-            <a ng-click="deleteTask(item.task.id)" ng-show="item.access.delete" class="btn delete-btn">
-                <span>Delete</span>
-            </a>
-            <a ng-click="" ng-show="item.access.edit" class="btn save-btn">
-                <span>Save</span>
-            </a>
-            <a ng-click="" ng-show="item.access.edit" class="btn cancel-btn">
-                <span>Cancel</span>
-            </a>
-            <a ng-click="finishTask(item.task.id)" ng-show="item.access.finish" class="btn finish-btn">
-                <span>Finish</span>
-            </a>
-            <a ng-click="reopenTask(item.task.id)" ng-show="item.access.reopen" class="btn reopen-btn">
-                <span>Re-open</span>
-            </a>
+            <form name="taskItemForm" novalidate>
+                <div class="task-properties ui-widget">
+                    {{item.task.creationDate.toLocaleDateString()+" "+item.task.creationDate.toLocaleTimeString()}}
+                    <span><b>Assigned to:</b></span>
+                    <input ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
+                           value="{{item.task.assignee !== item.task.author ? item.task.assignee : ''}}">
+                    <input type="submit" class="btn assign-btn" value="Assign"
+                           ng-show="item.access.edit">
+                </div>
+                <textarea required ng-model="item.task.description" name="description" class="inline-edit" rows=1
+                          ng-readonly="!item.access.edit"></textarea>
+                <input type="submit" class="btn save-btn" ng-click="" value="Save"
+                       ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.edit">
+                <input type="submit" class="btn cancel-btn" ng-click="" value="Cancel"
+                       ng-show="item.access.edit">
+                <input type="submit" class="btn delete-btn" ng-click="deleteTask(item.task.id);" value="Delete"
+                       ng-show="item.access.delete">
+                <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item.task.id);" value="Re-open"
+                       ng-show="item.access.reopen">
+                <input type="submit" class="btn finish-btn" ng-click="finishTask(item.task.id);" value="Finish"
+                       ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.finish">
+            </form>
         </div>
 
     </div>
