@@ -24,18 +24,17 @@
 
 <div class="widget" ng-controller="widgetController">
 
-    <div class="new-task">
-
-        <textarea ng-model='description' class="task-txt new-task-txt" rows=1
+    <form name="newTaskForm" novalidate ng-submit="addTask();">
+        <div class="new-task">
+            <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1
                   placeholder="Enter your task description"></textarea>
 
-        <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
+            <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
 
-        <a ng-click="addTask()" class="btn new-task-btn {{checkDescription(description) ? '' : 'disabled'}}">
-            <span>New task</span>
-        </a>
-
-    </div>
+            <input type="submit" class="btn new-task-btn"
+                   ng-disabled="newTaskForm.description.$invalid">
+        </div>
+    </form>
 
     <div class="widget-properties">
         <input type="checkbox" id="only-assigned-checkbox"/>

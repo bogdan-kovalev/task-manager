@@ -10,11 +10,9 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         $scope.items = Tasks.getTasksAndAccesses();
 
         $scope.addTask = function () {
-            if (Utils.isValidDescription($scope.description)) {
-                Tasks.addTask($scope.description, currentUser, $scope.assignee);
-                $scope.description = "";
-                $scope.items = Tasks.getTasksAndAccesses();
-            }
+            Tasks.addTask($scope.description, currentUser, $scope.assignee);
+            $scope.description = "";
+            $scope.items = Tasks.getTasksAndAccesses();
         };
 
         $scope.checkDescription = function () {

@@ -63,7 +63,7 @@ textarea:focus {
     margin: 3px;
 }
 
-.disabled {
+.btn:disabled {
     background-color: lightgrey;
 }
 
