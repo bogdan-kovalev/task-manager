@@ -20,7 +20,7 @@
 <script type="text/javascript" src="script/service/tasklist-back.js"></script>
 <script type="text/javascript" src="script/controller/tasklist-front.js"></script>
 <script type="text/javascript" src="./script/app.js"></script>
-<script type="text/javascript" src="./script/util.js"></script>
+<script type="text/javascript" src="script/utils.js"></script>
 
 <div class="widget" ng-controller="widgetController">
 
@@ -57,19 +57,19 @@
             <textarea class="inline-edit" rows=1 ng-readonly="!item.access.edit">
                 {{item.task.description}}
             </textarea>
-            <a ng-show="item.access.delete" class="btn delete-btn">
+            <a ng-click="deleteTask(item.task.id)" ng-show="item.access.delete" class="btn delete-btn">
                 <span>Delete</span>
             </a>
-            <a ng-show="item.access.edit" class="btn save-btn">
+            <a ng-click="" ng-show="item.access.edit" class="btn save-btn">
                 <span>Save</span>
             </a>
-            <a ng-show="item.access.edit" class="btn cancel-btn">
+            <a ng-click="" ng-show="item.access.edit" class="btn cancel-btn">
                 <span>Cancel</span>
             </a>
-            <a ng-show="item.access.finish" class="btn finish-btn">
+            <a ng-click="finishTask(item.task.id)" ng-show="item.access.finish" class="btn finish-btn">
                 <span>Finish</span>
             </a>
-            <a ng-show="item.access.reopen" class="btn reopen-btn">
+            <a ng-click="reopenTask(item.task.id)" ng-show="item.access.reopen" class="btn reopen-btn">
                 <span>Re-open</span>
             </a>
         </div>
