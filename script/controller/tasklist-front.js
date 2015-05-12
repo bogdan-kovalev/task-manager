@@ -43,4 +43,10 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         $scope.restoreDescription = function (item) {
             item.task.description = item.descriptionBkp;
         };
+
+        $scope.reassignTask = function (item) {
+            Tasks.assignTask(item.task.id, item.task.assignee);
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index] = Tasks.getItem(item.task.id);
+        };
     }]);

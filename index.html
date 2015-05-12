@@ -48,15 +48,17 @@
                 <div class="task-properties ui-widget">
                     {{item.task.creationDate.toLocaleDateString()+" "+item.task.creationDate.toLocaleTimeString()}}
                     <span><b>Assigned to:</b></span>
-                    <input ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
-                           value="{{item.task.assignee !== item.task.author ? item.task.assignee : ''}}">
-                    <input type="submit" class="btn assign-btn" value="Assign"
+                    <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
+                           ng-model="item.task.assignee">
+                    <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
                            ng-show="item.access.edit">
                 </div>
+
                 <textarea required name="description" class="inline-edit" rows=1
                           ng-model="item.task.description"
                           ng-focus="item.descriptionBkp = item.task.description;"
                           ng-readonly="!item.access.edit"></textarea>
+
                 <input type="submit" class="btn save-btn" ng-click="saveDescription(item)" value="Save"
                        ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.edit">
                 <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item)" value="Cancel"
