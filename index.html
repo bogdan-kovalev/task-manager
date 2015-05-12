@@ -53,17 +53,19 @@
                     <input type="submit" class="btn assign-btn" value="Assign"
                            ng-show="item.access.edit">
                 </div>
-                <textarea required ng-model="item.task.description" name="description" class="inline-edit" rows=1
+                <textarea required name="description" class="inline-edit" rows=1
+                          ng-model="item.task.description"
+                          ng-focus="item.descriptionBkp = item.task.description;"
                           ng-readonly="!item.access.edit"></textarea>
-                <input type="submit" class="btn save-btn" ng-click="" value="Save"
+                <input type="submit" class="btn save-btn" ng-click="saveDescription(item)" value="Save"
                        ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.edit">
-                <input type="submit" class="btn cancel-btn" ng-click="" value="Cancel"
+                <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item)" value="Cancel"
                        ng-show="item.access.edit">
-                <input type="submit" class="btn delete-btn" ng-click="deleteTask(item.task.id);" value="Delete"
+                <input type="submit" class="btn delete-btn" ng-click="deleteTask(item);" value="Delete"
                        ng-show="item.access.delete">
-                <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item.task.id);" value="Re-open"
+                <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item);" value="Re-open"
                        ng-show="item.access.reopen">
-                <input type="submit" class="btn finish-btn" ng-click="finishTask(item.task.id);" value="Finish"
+                <input type="submit" class="btn finish-btn" ng-click="finishTask(item);" value="Finish"
                        ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.finish">
             </form>
         </div>

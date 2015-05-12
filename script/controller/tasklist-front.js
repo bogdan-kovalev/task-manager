@@ -7,30 +7,40 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         $scope.description = "";
         $scope.assignee = "";
 
-        $scope.items = Tasks.getTasksAndAccesses();
+        $scope.items = Tasks.getItems();
+        $scope.items.forEach(function (item) {
+            item.hovered = false;
+            item.focused = false;
+        });
 
         $scope.addTask = function () {
             Tasks.addTask($scope.description, currentUser, $scope.assignee);
             $scope.description = "";
-            $scope.items = Tasks.getTasksAndAccesses();
+            $scope.items = Tasks.getItems();
         };
 
-        $scope.checkDescription = function () {
-            return Utils.isValidDescription($scope.description);
+        $scope.deleteTask = function (item) {
+            Tasks.deleteTask(item.task.id);
+            Utils.remove($scope.items, item);
         };
 
-        $scope.deleteTask = function (id) {
-            Tasks.deleteTask(id);
-            $scope.items = Tasks.getTasksAndAccesses();
+        $scope.finishTask = function (item) {
+            Tasks.changeTaskStatus(item.task.id, Status.FINISHED);
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index] = Tasks.getItem(item.task.id);
         };
 
-        $scope.finishTask = function (id) {
-            Tasks.changeTaskStatus(id, Status.FINISHED);
-            $scope.items = Tasks.getTasksAndAccesses();
+        $scope.reopenTask = function (item) {
+            Tasks.changeTaskStatus(item.task.id, Status.REOPENED);
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index] = Tasks.getItem(item.task.id);
         };
 
-        $scope.reopenTask = function (id) {
-            Tasks.changeTaskStatus(id, Status.REOPENED);
-            $scope.items = Tasks.getTasksAndAccesses();
+        $scope.saveDescription = function (item) {
+            Tasks.changeTaskDescription(item.task.id, item.task.description);
+        };
+
+        $scope.restoreDescription = function (item) {
+            item.task.description = item.descriptionBkp;
         };
     }]);

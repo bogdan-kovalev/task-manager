@@ -50,15 +50,23 @@ angular.module('tasklist-back', ['utils']).
             };
 
 
-            Model.prototype.getTasksAndAccesses = function () {
+            Model.prototype.getItems = function () {
                 var ret = [];
-                this._storage.fetchTasks().forEach(function (task) {
+                model._storage.fetchTasks().forEach(function (task) {
                     ret.push({
                         task: task.getDTO(),
                         access: model.getAccessFor(task)
                     });
                 });
                 return ret;
+            };
+
+            Model.prototype.getItem = function (id) {
+                var task = model._storage.getTaskByID(id);
+                return {
+                    task: task.getDTO(),
+                    access: model.getAccessFor(task)
+                };
             };
 
             Model.prototype.getAccessFor = function (task) {
