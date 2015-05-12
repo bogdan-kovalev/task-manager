@@ -4,6 +4,7 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'utils'])
     .controller('widgetController', ['$scope', 'Tasks', 'Utils', function ($scope, Tasks, Utils) {
+
         $scope.description = "";
         $scope.assignee = "";
 
@@ -12,6 +13,11 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             item.hovered = false;
             item.focused = false;
         });
+
+        function updateItem(item) {
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index] = Tasks.getItem(item.task.id);
+        }
 
         $scope.addTask = function () {
             Tasks.addTask($scope.description, currentUser, $scope.assignee);
@@ -26,14 +32,12 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
         $scope.finishTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.FINISHED);
-            var index = $scope.items.lastIndexOf(item);
-            $scope.items[index] = Tasks.getItem(item.task.id);
+            updateItem(item);
         };
 
         $scope.reopenTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.REOPENED);
-            var index = $scope.items.lastIndexOf(item);
-            $scope.items[index] = Tasks.getItem(item.task.id);
+            updateItem(item);
         };
 
         $scope.saveDescription = function (item) {
@@ -46,7 +50,6 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
         $scope.reassignTask = function (item) {
             Tasks.assignTask(item.task.id, item.task.assignee);
-            var index = $scope.items.lastIndexOf(item);
-            $scope.items[index] = Tasks.getItem(item.task.id);
+            updateItem(item);
         };
     }]);
