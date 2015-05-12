@@ -9,18 +9,16 @@ angular.module('tasklist-back', ['utils']).
             this._storage = storage;
             var model = this;
 
-            var __proto__ = Model.prototype;
-
-            __proto__.addTask = function (description, author, assignee) {
+            Model.prototype.addTask = function (description, author, assignee) {
                 var task = new TaskItem(description, author, assignee);
                 model._storage.add(task);
             };
 
-            __proto__.deleteTask = function (taskID) {
+            Model.prototype.deleteTask = function (taskID) {
                 model._storage.delete(taskID);
             };
 
-            __proto__.assignTask = function (taskID, user) {
+            Model.prototype.assignTask = function (taskID, user) {
                 var task = model._storage.getTaskByID(taskID);
 
                 if (task) {
@@ -29,7 +27,7 @@ angular.module('tasklist-back', ['utils']).
                 }
             };
 
-            __proto__.changeTaskDescription = function (taskID, newDescription) {
+            Model.prototype.changeTaskDescription = function (taskID, newDescription) {
                 var task = model._storage.getTaskByID(taskID);
 
                 if (task) {
@@ -38,7 +36,7 @@ angular.module('tasklist-back', ['utils']).
                 }
             };
 
-            __proto__.changeTaskStatus = function (taskID, newStatus) {
+            Model.prototype.changeTaskStatus = function (taskID, newStatus) {
                 var task = model._storage.getTaskByID(taskID);
 
                 if (task) {
@@ -47,12 +45,12 @@ angular.module('tasklist-back', ['utils']).
                 }
             };
 
-            __proto__.getTaskByID = function (id) {
+            Model.prototype.getTaskByID = function (id) {
                 return model._storage.getTaskByID(id);
             };
 
 
-            __proto__.getTasksAndAccesses = function () {
+            Model.prototype.getTasksAndAccesses = function () {
                 var ret = [];
                 this._storage.fetchTasks().forEach(function (task) {
                     ret.push({
@@ -63,7 +61,7 @@ angular.module('tasklist-back', ['utils']).
                 return ret;
             };
 
-            __proto__.getAccessFor = function (task) {
+            Model.prototype.getAccessFor = function (task) {
                 return {
                     delete: currentUser == task.getAuthor(),
                     edit: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED,
@@ -81,45 +79,43 @@ angular.module('tasklist-back', ['utils']).
             this._timestamp = new Date().getTime();
             this._status = Status.NEW;
 
-            var __proto__ = TaskItem.prototype;
-
-            __proto__.getDescription = function () {
+            TaskItem.prototype.getDescription = function () {
                 return Utils.clone(this._description);
             };
 
-            __proto__.setDescription = function (description) {
+            TaskItem.prototype.setDescription = function (description) {
                 this._description = Utils.clone(description);
             };
 
-            __proto__.getAuthor = function () {
+            TaskItem.prototype.getAuthor = function () {
                 return Utils.clone(this._author);
             };
 
-            __proto__.assignTo = function (user) {
+            TaskItem.prototype.assignTo = function (user) {
                 this._assignee = Utils.clone(user);
             };
 
-            __proto__.getAssignee = function () {
+            TaskItem.prototype.getAssignee = function () {
                 return Utils.clone(this._assignee);
             };
 
-            __proto__.getCreationDate = function () {
+            TaskItem.prototype.getCreationDate = function () {
                 return new Date(this._timestamp);
             };
 
-            __proto__.getID = function () {
+            TaskItem.prototype.getID = function () {
                 return Utils.clone(this._timestamp);
             };
 
-            __proto__.getStatus = function () {
+            TaskItem.prototype.getStatus = function () {
                 return Utils.clone(this._status);
             };
 
-            __proto__.setStatus = function (status) {
+            TaskItem.prototype.setStatus = function (status) {
                 this._status = Utils.clone(status);
             };
 
-            __proto__.getDTO = function () {
+            TaskItem.prototype.getDTO = function () {
                 return {
                     id: this.getID(),
                     description: this.getDescription(),
@@ -130,7 +126,7 @@ angular.module('tasklist-back', ['utils']).
                 };
             };
 
-            __proto__.restoreFrom = function (data) {
+            TaskItem.prototype.restoreFrom = function (data) {
                 this._description = data._description;
                 this._author = data._author;
                 this._assignee = data._assignee;

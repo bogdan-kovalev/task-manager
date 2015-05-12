@@ -20,4 +20,4 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         $scope.checkDescription = function () {
             return Utils.isValidDescription($scope.description);
         }
-    }])
+    }]);
