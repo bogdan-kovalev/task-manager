@@ -52,4 +52,12 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             Tasks.assignTask(item.task.id, item.task.assignee);
             updateItem(item);
         };
+
+        $scope.onFocus = function (item) {
+            if (!item.focused) {
+                item.descriptionBkp = item.task.description;
+                item.focused = true;
+            }
+        };
+
     }]);

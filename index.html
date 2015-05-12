@@ -58,13 +58,14 @@
 
                 <textarea required name="description" class="inline-edit" rows=1
                           ng-model="item.task.description"
-                          ng-focus="item.descriptionBkp = item.task.description; item.focused = true;"
-                          ng-blur="item.focused = false;"
+                          ng-focus="onFocus(item);"
                           ng-readonly="!item.access.edit"></textarea>
 
-                <input type="submit" class="btn save-btn" ng-click="saveDescription(item)" value="Save"
+                <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
+                       value="Save"
                        ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.edit && item.focused">
-                <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item)" value="Cancel"
+                <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item); item.focused = false;"
+                       value="Cancel"
                        ng-show="item.access.edit && item.focused">
                 <input type="submit" class="btn delete-btn" ng-click="deleteTask(item);" value="Delete"
                        ng-show="item.access.delete && item.hovered">
