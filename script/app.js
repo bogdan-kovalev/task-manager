@@ -11,4 +11,4 @@ Status = {
     REOPENED: "reopened"
 };
 
-angular.module('app', ['tasklist-front', 'tasklist-back', 'utils'])
+angular.module('app', ['tasklist-front', 'tasklist-back', 'utils']);
