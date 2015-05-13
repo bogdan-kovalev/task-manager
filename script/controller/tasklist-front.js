@@ -4,15 +4,17 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
-    .controller('widgetController', ['$scope', 'Tasks', 'Utils', function ($scope, Tasks, Utils) {
+    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Utils', function ($scope, $state, Tasks, Utils) {
 
         $scope.description = "";
         $scope.assignee = "";
+        $scope.onlyAssigned = $state.is('tasks.assigned');
 
         $scope.items = Tasks.getItems();
         $scope.items.forEach(function (item) {
             item.hovered = false;
             item.focused = false;
+            item.hide = false;
         });
 
         function updateItem(item) {
@@ -61,6 +63,22 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             }
         };
 
+        $scope.filterAssigned = function () {
+            if ($scope.onlyAssigned) {
+                $state.transitionTo('tasks.assigned');
+            } else {
+                $state.transitionTo('tasks.all');
+            }
+        }
+
+    }])
+
+    .controller('itemsController', ['$scope', '$state', function ($scope, $state) {
+        $scope.items.forEach(function (item) {
+            if (!(item.task.author == currentUser && item.task.assignee != currentUser)) {
+                item.hide = $scope.onlyAssigned;
+            }
+        });
     }])
 
     .filter('datetime', function ($filter) {

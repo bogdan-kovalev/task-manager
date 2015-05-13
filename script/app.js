@@ -14,11 +14,19 @@ Status = {
 angular.module('app', ['ui.router', 'tasklist-front', 'tasklist-back', 'utils'])
     .config(function ($stateProvider, $urlRouterProvider) {
 
-        $urlRouterProvider.otherwise("/all-tasks");
+        $urlRouterProvider.otherwise("/all");
 
         $stateProvider
-            .state('allTasks', {
-                url: "/all-tasks",
+            .state('tasks', {
+                url: "/",
                 templateUrl: "views/tasks-widget.html"
+            })
+            .state('tasks.all', {
+                url: "all",
+                templateUrl: "views/task-items.html"
+            })
+            .state('tasks.assigned', {
+                url: "assigned",
+                templateUrl: "views/task-items.html"
             })
     });
