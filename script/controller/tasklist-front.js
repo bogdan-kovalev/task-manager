@@ -3,6 +3,7 @@
  */
 
 angular.module('tasklist-front', ['tasklist-back', 'utils'])
+
     .controller('widgetController', ['$scope', 'Tasks', 'Utils', function ($scope, Tasks, Utils) {
 
         $scope.description = "";
@@ -60,4 +61,18 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             }
         };
 
-    }]);
+    }])
+
+    .filter('datetime', function ($filter) {
+        return function (date) {
+            if (date == null) {
+                return "";
+            }
+
+            var _date = $filter('date')(date,
+                'MMM dd yyyy - HH:mm:ss');
+
+            return _date;
+
+        };
+    });

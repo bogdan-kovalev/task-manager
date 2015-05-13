@@ -47,9 +47,9 @@
              ng-mouseenter="item.hovered = true;"
              ng-mouseleave="item.hovered = false;">
             <form name="taskItemForm" novalidate>
-                <div class="task-properties ui-widget">
-                    {{item.task.creationDate.toLocaleDateString()+" "+item.task.creationDate.toLocaleTimeString()}}
-                    <span><b>Assigned to:</b></span>
+                <div class="task-properties">
+                    {{item.task.creationDate | datetime }}
+                    <b>Assigned to:</b>
                     <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
                            ng-model="item.task.assignee">
                     <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
