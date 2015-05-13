@@ -11,4 +11,14 @@ Status = {
     REOPENED: "reopened"
 };
 
-angular.module('app', ['tasklist-front', 'tasklist-back', 'utils']);
+angular.module('app', ['ui.router', 'tasklist-front', 'tasklist-back', 'utils'])
+    .config(function ($stateProvider, $urlRouterProvider) {
+
+        $urlRouterProvider.otherwise("/all-tasks");
+
+        $stateProvider
+            .state('allTasks', {
+                url: "/all-tasks",
+                templateUrl: "views/tasks-widget.html"
+            })
+    });
