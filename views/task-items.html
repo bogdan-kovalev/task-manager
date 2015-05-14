@@ -11,7 +11,7 @@
                 <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
                        ng-model="item.task.assignee" required>
                 <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
-                       ng-show="item.access.edit" ng-disabled="taskItemForm.assignee.$invalid">
+                       ng-show="item.access.edit">
             </div>
 
             <textarea required name="description" class="inline-edit" rows=1
@@ -19,18 +19,18 @@
                       ng-focus="onFocus(item);"
                       ng-readonly="!item.access.edit"></textarea>
 
-            <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
-                   value="Save"
-                   ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.edit && item.focused">
             <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item); item.focused = false;"
                    value="Cancel"
+                   ng-show="item.access.edit && item.focused">
+            <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
+                   value="Save"
                    ng-show="item.access.edit && item.focused">
             <input type="submit" class="btn delete-btn" ng-click="deleteTask(item);" value="Delete"
                    ng-show="item.access.delete && item.hovered">
             <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item);" value="Re-open"
                    ng-show="item.access.reopen && item.hovered">
             <input type="submit" class="btn finish-btn" ng-click="finishTask(item);" value="Finish"
-                   ng-disabled="taskItemForm.description.$invalid" ng-show="item.access.finish && item.hovered">
+                   ng-show="item.access.finish && item.hovered">
         </form>
     </div>
 </div>
