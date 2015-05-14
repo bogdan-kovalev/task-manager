@@ -11,10 +11,10 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         $scope.onlyAssigned = $state.is('tasks.assigned');
 
         $scope.items = Tasks.getItems();
+
         $scope.items.forEach(function (item) {
             item.hovered = false;
             item.focused = false;
-            item.hide = false;
         });
 
         function updateItem(item) {
@@ -74,23 +74,19 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
     }])
 
     .controller('itemsController', ['$scope', '$state', function ($scope, $state) {
-        $scope.items.forEach(function (item) {
-            if (!(item.task.author == currentUser && item.task.assignee != currentUser)) {
-                item.hide = $scope.onlyAssigned;
-            }
-        });
+        if ($state.is('tasks.assigned')) {
+            $scope.tasksFilter = function (value) {
+                return value.task.author == currentUser && value.task.assignee != currentUser;
+            };
+        } else if ($state.is('tasks.all')) {
+            $scope.tasksFilter = function (value) {
+                return true;
+            };
+        }
     }])
 
     .filter('datetime', function ($filter) {
         return function (date) {
-            if (date == null) {
-                return "";
-            }
-
-            var _date = $filter('date')(date,
-                'MMM dd yyyy - HH:mm:ss');
-
-            return _date;
-
+            return date == null ? "" : $filter('date')(date, 'MMM dd yyyy - HH:mm:ss');
         };
     });

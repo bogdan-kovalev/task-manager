@@ -1,7 +1,7 @@
 <div class="task-items-wrapper" ng-controller="itemsController">
     <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
-    <div ng-repeat="item in items" ng-show="!item.hide" class="task-item {{item.task.status}}" id="{{item.task.id}}"
+    <div ng-repeat="item in items | filter: tasksFilter" class="task-item {{item.task.status}}" id="{{item.task.id}}"
          ng-mouseenter="item.hovered = true;"
          ng-mouseleave="item.hovered = false;">
         <form name="taskItemForm" novalidate>
@@ -9,15 +9,15 @@
                 {{item.task.creationDate | datetime }}
                 <b>Assigned to:</b>
                 <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
-                       ng-model="item.task.assignee">
+                       ng-model="item.task.assignee" required>
                 <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
-                       ng-show="item.access.edit">
+                       ng-show="item.access.edit" ng-disabled="taskItemForm.assignee.$invalid">
             </div>
 
-                <textarea required name="description" class="inline-edit" rows=1
-                          ng-model="item.task.description"
-                          ng-focus="onFocus(item);"
-                          ng-readonly="!item.access.edit"></textarea>
+            <textarea required name="description" class="inline-edit" rows=1
+                      ng-model="item.task.description"
+                      ng-focus="onFocus(item);"
+                      ng-readonly="!item.access.edit"></textarea>
 
             <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
                    value="Save"
