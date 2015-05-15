@@ -91,9 +91,9 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         };
     })
 
-    .directive('userExist', ['Utils', function (Utils) {
+    .directive('userExist', ['_', function (_) {
         var existent = function (user) {
-            return Utils._.contains(users, user);
+            return _.contains(users, user);
         };
 
         return {

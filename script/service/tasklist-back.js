@@ -81,30 +81,30 @@ angular.module('tasklist-back', ['utils']).
         }
 
         function TaskItem(description, author, assignee) {
-            this._description = Utils.custom.clone(description);
-            this._author = Utils.custom.clone(author);
-            this._assignee = Utils.custom.clone(assignee && assignee != '' ? assignee : author);
+            this._description = Utils.clone(description);
+            this._author = Utils.clone(author);
+            this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
             this._timestamp = new Date().getTime();
             this._status = Status.NEW;
 
             TaskItem.prototype.getDescription = function () {
-                return Utils.custom.clone(this._description);
+                return Utils.clone(this._description);
             };
 
             TaskItem.prototype.setDescription = function (description) {
-                this._description = Utils.custom.clone(description);
+                this._description = Utils.clone(description);
             };
 
             TaskItem.prototype.getAuthor = function () {
-                return Utils.custom.clone(this._author);
+                return Utils.clone(this._author);
             };
 
             TaskItem.prototype.assignTo = function (user) {
-                this._assignee = Utils.custom.clone(user);
+                this._assignee = Utils.clone(user);
             };
 
             TaskItem.prototype.getAssignee = function () {
-                return Utils.custom.clone(this._assignee);
+                return Utils.clone(this._assignee);
             };
 
             TaskItem.prototype.getCreationDate = function () {
@@ -112,15 +112,15 @@ angular.module('tasklist-back', ['utils']).
             };
 
             TaskItem.prototype.getID = function () {
-                return Utils.custom.clone(this._timestamp);
+                return Utils.clone(this._timestamp);
             };
 
             TaskItem.prototype.getStatus = function () {
-                return Utils.custom.clone(this._status);
+                return Utils.clone(this._status);
             };
 
             TaskItem.prototype.setStatus = function (status) {
-                this._status = Utils.custom.clone(status);
+                this._status = Utils.clone(status);
             };
 
             TaskItem.prototype.getDTO = function () {

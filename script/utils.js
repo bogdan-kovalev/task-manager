@@ -1,12 +1,8 @@
 angular.module('utils', []).
     factory('Utils', function () {
-        var Utils = {
-            custom: {},
-            _: _,
-            jQ: jQuery
-        };
+        var Utils = {};
 
-        Utils.custom.clone = function (obj) {
+        Utils.clone = function (obj) {
             var copy;
             // Handle the 3 simple types, and null or undefined
             if (null == obj || "object" != typeof obj) return obj;
@@ -22,7 +18,7 @@ angular.module('utils', []).
             if (obj instanceof Array) {
                 copy = [];
                 for (var i = 0, len = obj.length; i < len; i++) {
-                    copy[i] = Utils.custom.clone(obj[i]);
+                    copy[i] = Utils.clone(obj[i]);
                 }
                 return copy;
             }
@@ -31,7 +27,7 @@ angular.module('utils', []).
             if (obj instanceof Object) {
                 copy = {};
                 for (var attr in obj) {
-                    if (obj.hasOwnProperty(attr)) copy[attr] = Utils.custom.clone(obj[attr]);
+                    if (obj.hasOwnProperty(attr)) copy[attr] = Utils.clone(obj[attr]);
                 }
                 return copy;
             }
@@ -39,18 +35,24 @@ angular.module('utils', []).
             throw new Error("Unable to copy obj! Its type isn't supported.");
         };
 
-        Utils.custom.remove = function (array, elem) {
+        Utils.remove = function (array, elem) {
             var index = array.indexOf(elem);
             if (index > -1) {
                 array.splice(index, 1);
             }
         };
 
-        Utils.custom.generateID = function () {
+        Utils.generateID = function () {
             return Math.floor(Math.random() * 1000);
         };
 
         return Utils;
+    })
+    .factory('jQ', function () {
+        return jQuery;
+    })
+    .factory('_', function () {
+        return _;
     });
 
 KeyCode = {
