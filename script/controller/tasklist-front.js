@@ -22,6 +22,16 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             $scope.items[index] = Tasks.getItem(item.task.id);
         }
 
+        function updateItemAssignee(item) {
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index].task.assignee = Tasks.getItem(item.task.id).task.assignee;
+        }
+
+        function updateItemDescription(item) {
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
+        }
+
         $scope.addTask = function () {
             Tasks.addTask($scope.description, Users.getCurrentUser(), $scope.assignee);
             $scope.description = "";
@@ -45,6 +55,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.saveDescription = function (item) {
             Tasks.changeTaskDescription(item.task.id, item.task.description);
+            updateItemDescription(item);
         };
 
         $scope.restoreDescription = function (item) {
@@ -53,7 +64,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.reassignTask = function (item) {
             Tasks.assignTask(item.task.id, item.task.assignee);
-            updateItem(item);
+            updateItemAssignee(item);
         };
 
         $scope.onFocus = function (item) {

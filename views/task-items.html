@@ -33,7 +33,7 @@
             <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item);" value="Re-open"
                    ng-show="item.access.reopen && item.hovered">
             <input type="submit" class="btn finish-btn" ng-click="finishTask(item);" value="Finish"
-                   ng-show="item.access.finish && item.hovered">
+                   ng-show="item.access.finish && item.hovered && !item.focused">
         </form>
     </div>
 </div>
