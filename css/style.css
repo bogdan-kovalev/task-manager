@@ -108,7 +108,7 @@ input.assign {
 
 .task-item input.ng-invalid,
 .task-item textarea.ng-invalid {
-    border: 1px solid Red;
+    border: 1px solid rgba(255, 0, 0, 0.32);
 }
 
 .task-item textarea.ng-invalid ~ .save-btn,
@@ -116,4 +116,13 @@ input.assign {
 .task-item input.ng-invalid ~ .assign-btn,
 .new-task textarea.ng-invalid ~ .new-task-btn {
     display: none;
+}
+
+.error {
+    display: none;
+    color: rgba(255, 0, 0, 0.83);
+}
+
+.task-item .ng-invalid-user-exist ~ span.error {
+    display: inline;
 }

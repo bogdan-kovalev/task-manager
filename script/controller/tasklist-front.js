@@ -91,17 +91,17 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         };
     })
 
-    .directive('userExist', function () {
-        var isUserExist = function (user) {
-            return _.contains(users, user);
+    .directive('userExist', ['Utils', function (Utils) {
+        var existent = function (user) {
+            return Utils._.contains(users, user);
         };
 
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch('item.task.assignee', function (user) {
-                    ctrl.$setValidity('userExist', isUserExist(user));
+                    ctrl.$setValidity('userExist', existent(user));
                 });
             }
         }
-    });
+    }]);
