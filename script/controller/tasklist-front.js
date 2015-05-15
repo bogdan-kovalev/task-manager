@@ -96,9 +96,12 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             return _.contains(users, user);
         };
 
-        return function (scope, elem, attrs, ctrl) {
-            scope.$watch('item.task.assignee', function (user) {
-                ctrl.$setValidity('userExist', isUserExist(user));
-            });
+        return {
+            require: '?ngModel',
+            link: function (scope, elem, attrs, ctrl) {
+                scope.$watch('item.task.assignee', function (user) {
+                    ctrl.$setValidity('userExist', isUserExist(user));
+                });
+            }
         }
     });
