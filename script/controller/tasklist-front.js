@@ -76,7 +76,8 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
     .controller('itemsController', ['$scope', '$state', 'Users', function ($scope, $state, Users) {
         if ($state.is('tasks.assigned')) {
             $scope.tasksFilter = function (value) {
-                return value.task.author == Users.getCurrentUser() && value.task.assignee != Users.getCurrentUser();
+                var currentUser = Users.getCurrentUser();
+                return value.task.author == currentUser && value.task.assignee != currentUser;
             };
         } else if ($state.is('tasks.all')) {
             $scope.tasksFilter = function (value) {

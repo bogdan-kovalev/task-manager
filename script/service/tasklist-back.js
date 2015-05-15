@@ -7,6 +7,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
 
         function Model(storage) {
             this._storage = storage;
+            var currentUser = Users.getCurrentUser();
             var model = this;
 
             Model.prototype.addTask = function (description, author, assignee) {
@@ -71,11 +72,11 @@ angular.module('tasklist-back', ['utils', 'users-back'])
 
             Model.prototype.getAccessFor = function (task) {
                 return {
-                    delete: Users.getCurrentUser() == task.getAuthor(),
-                    edit: Users.getCurrentUser() == task.getAuthor() && task.getStatus() != Status.FINISHED,
-                    finish: Users.getCurrentUser() == task.getAssignee() && task.getStatus() != Status.FINISHED,
-                    reopen: Users.getCurrentUser() == task.getAssignee() && task.getStatus() == Status.FINISHED,
-                    reassign: Users.getCurrentUser() == task.getAuthor() && task.getStatus() != Status.FINISHED
+                    delete: currentUser == task.getAuthor(),
+                    edit: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED,
+                    finish: currentUser == task.getAssignee() && task.getStatus() != Status.FINISHED,
+                    reopen: currentUser == task.getAssignee() && task.getStatus() == Status.FINISHED,
+                    reassign: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED
                 };
             };
         }
