@@ -63,13 +63,13 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             }
         };
 
-        $scope.filterAssigned = function () {
+        $scope.$watch('onlyAssigned', function () {
             if ($scope.onlyAssigned) {
                 $state.transitionTo('tasks.assigned');
             } else {
                 $state.transitionTo('tasks.all');
             }
-        }
+        });
 
     }])
 
@@ -89,4 +89,16 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         return function (date) {
             return date == null ? "" : $filter('date')(date, 'MMM dd yyyy - HH:mm:ss');
         };
+    })
+
+    .directive('userExist', function () {
+        var isUserExist = function (user) {
+            return _.contains(users, user);
+        };
+
+        return function (scope, elem, attrs, ctrl) {
+            scope.$watch('item.task.assignee', function (user) {
+                ctrl.$setValidity('userExist', isUserExist(user));
+            });
+        }
     });

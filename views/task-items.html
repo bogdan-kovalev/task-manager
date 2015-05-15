@@ -9,7 +9,10 @@
                 {{item.task.creationDate | datetime }}
                 <b>Assigned to:</b>
                 <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
-                       ng-model="item.task.assignee" required>
+                       ng-model="item.task.assignee" required user-exist>
+                <span ng-show="!taskItemForm.assignee.$error.userExist">
+                        User does not exist
+                </span>
                 <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
                        ng-show="item.access.edit">
             </div>
