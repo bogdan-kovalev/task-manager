@@ -2,8 +2,8 @@
  * @author Bogdan Kovalev
  */
 
-angular.module('tasklist-back', ['utils']).
-    factory('Tasks', function (Utils) {
+angular.module('tasklist-back', ['utils', 'users-back'])
+    .factory('Tasks', function (Utils, Users) {
 
         function Model(storage) {
             this._storage = storage;
@@ -71,11 +71,11 @@ angular.module('tasklist-back', ['utils']).
 
             Model.prototype.getAccessFor = function (task) {
                 return {
-                    delete: currentUser == task.getAuthor(),
-                    edit: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED,
-                    finish: currentUser == task.getAssignee() && task.getStatus() != Status.FINISHED,
-                    reopen: currentUser == task.getAssignee() && task.getStatus() == Status.FINISHED,
-                    reassign: currentUser == task.getAuthor() && task.getStatus() != Status.FINISHED
+                    delete: Users.getCurrentUser() == task.getAuthor(),
+                    edit: Users.getCurrentUser() == task.getAuthor() && task.getStatus() != Status.FINISHED,
+                    finish: Users.getCurrentUser() == task.getAssignee() && task.getStatus() != Status.FINISHED,
+                    reopen: Users.getCurrentUser() == task.getAssignee() && task.getStatus() == Status.FINISHED,
+                    reassign: Users.getCurrentUser() == task.getAuthor() && task.getStatus() != Status.FINISHED
                 };
             };
         }

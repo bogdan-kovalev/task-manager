@@ -1,5 +1,10 @@
-angular.module('utils', []).
-    factory('Utils', function () {
+/**
+ * @author Bogdan Kovalev
+ */
+
+angular.module('utils', [])
+
+    .factory('Utils', function () {
         var Utils = {};
 
         Utils.clone = function (obj) {
@@ -48,11 +53,9 @@ angular.module('utils', []).
 
         return Utils;
     })
-    .factory('jQ', function () {
+
+    .factory('jQuery', function () {
         return jQuery;
-    })
-    .factory('_', function () {
-        return _;
     });
 
 KeyCode = {

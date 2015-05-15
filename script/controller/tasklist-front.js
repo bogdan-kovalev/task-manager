@@ -2,9 +2,9 @@
  * @author Bogdan Kovalev
  */
 
-angular.module('tasklist-front', ['tasklist-back', 'utils'])
+angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Utils', function ($scope, $state, Tasks, Utils) {
+    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Users', 'Utils', function ($scope, $state, Tasks, Users, Utils) {
 
         $scope.description = "";
         $scope.assignee = "";
@@ -23,7 +23,7 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         }
 
         $scope.addTask = function () {
-            Tasks.addTask($scope.description, currentUser, $scope.assignee);
+            Tasks.addTask($scope.description, Users.getCurrentUser(), $scope.assignee);
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
@@ -73,10 +73,10 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
     }])
 
-    .controller('itemsController', ['$scope', '$state', function ($scope, $state) {
+    .controller('itemsController', ['$scope', '$state', 'Users', function ($scope, $state, Users) {
         if ($state.is('tasks.assigned')) {
             $scope.tasksFilter = function (value) {
-                return value.task.author == currentUser && value.task.assignee != currentUser;
+                return value.task.author == Users.getCurrentUser() && value.task.assignee != Users.getCurrentUser();
             };
         } else if ($state.is('tasks.all')) {
             $scope.tasksFilter = function (value) {
@@ -91,16 +91,12 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         };
     })
 
-    .directive('userExist', ['_', function (_) {
-        var existent = function (user) {
-            return _.contains(users, user);
-        };
-
+    .directive('userExist', ['Users', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    ctrl.$setValidity('userExist', existent(user));
+                    ctrl.$setValidity('userExist', Users.isExistent(user));
                 });
             }
         }
