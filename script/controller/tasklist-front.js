@@ -112,8 +112,8 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
 
         return {
-            link: function (scope, elem) {
-                jQuery(window).load(function () {
+            link: function (scope, elem, attrs, ctrl) {
+                scope.$watch(elem.attr('ng-model'), function (user) {
                     autoRows(elem);
                 });
                 jQuery(elem).on('keyup', function () {
