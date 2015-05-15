@@ -99,7 +99,7 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
-                scope.$watch('item.task.assignee', function (user) {
+                scope.$watch(elem.attr('ng-model'), function (user) {
                     ctrl.$setValidity('userExist', existent(user));
                 });
             }
