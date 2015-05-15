@@ -24,7 +24,9 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         function updateItemAssignee(item) {
             var index = $scope.items.lastIndexOf(item);
-            $scope.items[index].task.assignee = Tasks.getItem(item.task.id).task.assignee;
+            var validItem = Tasks.getItem(item.task.id);
+            $scope.items[index].task.assignee = validItem.task.assignee;
+            $scope.items[index].access = validItem.access;
         }
 
         function updateItemDescription(item) {
