@@ -101,4 +101,22 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 });
             }
         }
+    }])
+
+    .directive('autoRows', ['jQuery', function (jQuery) {
+        function autoRows(textarea) {
+            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
+            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
+                textarea.attr('rows', +textarea.attr('rows') + 1);
+            }
+        }
+
+        return {
+            link: function (scope, elem, attrs, ctrl) {
+                autoRows(elem);
+                jQuery(elem).keyup(function () {
+                    autoRows(elem);
+                });
+            }
+        }
     }]);
