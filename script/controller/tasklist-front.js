@@ -93,7 +93,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 return value.task.author == currentUser && value.task.assignee != currentUser;
             };
         } else if ($state.is('tasks.all')) {
-            $scope.tasksFilter = function (value) {
+            $scope.tasksFilter = function () {
                 return true;
             };
         }
@@ -127,9 +127,6 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         return {
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    autoRows(elem);
-                });
-                jQuery(elem).on('keyup', function () {
                     autoRows(elem);
                 });
             }

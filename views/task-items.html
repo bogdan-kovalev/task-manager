@@ -19,6 +19,7 @@
 
             <textarea required name="description" class="inline-edit" rows=1 auto-rows
                       ng-model="item.task.description"
+                      ng-trim="false"
                       ng-focus="onFocus(item);"
                       ng-readonly="!item.access.edit"></textarea>
 

@@ -3,6 +3,7 @@
     <form name="newTaskForm" novalidate ng-submit="addTask();">
         <div class="new-task">
             <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1 auto-rows
+                      ng-trim="false"
                       placeholder="Enter your task description"></textarea>
 
             <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
