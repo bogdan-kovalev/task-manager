@@ -105,6 +105,31 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         };
     })
 
+    .filter('tasksOrder', function () {
+        return function (items) {
+
+            var _reopened = [];
+            var _new = [];
+            var _finished = [];
+
+            angular.forEach(items, function (item) {
+                switch (item.task.status) {
+                    case Status.REOPENED :
+                        _reopened.push(item);
+                        break;
+                    case Status.NEW :
+                        _new.push(item);
+                        break;
+                    case Status.FINISHED :
+                        _finished.push(item);
+                        break;
+                }
+            });
+
+            return _reopened.concat(_new, _finished);
+        }
+    })
+
     .directive('userExist', ['Users', function (Users) {
         return {
             require: '?ngModel',
@@ -116,7 +141,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     }])
 
-    .directive('autoRows', ['jQuery', function (jQuery) {
+    .directive('autoRows', function () {
         function autoRows(textarea) {
             textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
             while (textarea.height() < textarea.get(0).scrollHeight - 10) {
@@ -131,4 +156,4 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 });
             }
         }
-    }]);
+    });

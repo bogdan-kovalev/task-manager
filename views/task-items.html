@@ -1,7 +1,8 @@
 <div class="task-items-wrapper" ng-controller="itemsController">
     <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
-    <div ng-repeat="item in items | filter: tasksFilter" class="task-item {{item.task.status}}" id="{{item.task.id}}"
+    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter" class="task-item {{item.task.status}}"
+         id="{{item.task.id}}"
          ng-mouseenter="item.hovered = true;"
          ng-mouseleave="item.hovered = false;">
         <form name="taskItemForm" novalidate>
