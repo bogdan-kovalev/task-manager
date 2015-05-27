@@ -107,26 +107,28 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
     .filter('tasksOrder', function () {
         return function (items) {
+            items.sort(function (a, b) {
+                var aStatus = a.task.status;
+                var bStatus = b.task.status;
 
-            var _reopened = [];
-            var _new = [];
-            var _finished = [];
-
-            angular.forEach(items, function (item) {
-                switch (item.task.status) {
-                    case Status.REOPENED :
-                        _reopened.push(item);
-                        break;
-                    case Status.NEW :
-                        _new.push(item);
-                        break;
-                    case Status.FINISHED :
-                        _finished.push(item);
-                        break;
+                if (aStatus == Status.FINISHED && bStatus != Status.FINISHED) {
+                    return 1;
                 }
+                if (aStatus != Status.FINISHED && bStatus == Status.FINISHED) {
+                    return -1;
+                }
+
+                if (aStatus == Status.REOPENED && bStatus != Status.REOPENED) {
+                    return -1;
+                }
+                if (aStatus != Status.REOPENED && bStatus == Status.REOPENED) {
+                    return 1;
+                }
+
+                return a.task.id - b.task.id; // id is timestamp
             });
 
-            return _reopened.concat(_new, _finished);
+            return items;
         }
     })
 
