@@ -2,7 +2,8 @@
 
     <form name="newTaskForm" novalidate ng-submit="addTask();">
         <div class="new-task">
-            <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1 auto-rows
+            <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1
+                      td-auto-rows
                       ng-trim="false"
                       placeholder="Enter your task description"></textarea>
 
@@ -13,8 +14,8 @@
     </form>
 
     <div class="widget-properties">
-        <input type="checkbox" id="only-assigned-checkbox" ng-model="onlyAssigned"/>
-        <label for="only-assigned-checkbox"><b>My tasks assigned to others</b></label>
+        <input type="checkbox" id="assigned-by-me" ng-model="assignedByMe"/>
+        <label for="assigned-by-me"><b>Tasks assigned by me</b></label>
     </div>
 
     <div ui-view></div>

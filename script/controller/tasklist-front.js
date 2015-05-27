@@ -4,11 +4,11 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Users', 'Utils', function ($scope, $state, Tasks, Users, Utils) {
+    .controller('widgetController', function ($scope, $state, Tasks, Users, Utils) {
 
         $scope.description = "";
         $scope.assignee = "";
-        $scope.onlyAssigned = $state.is('tasks.assigned');
+        $scope.assignedByMe = $state.is('tasks.assignedByMe');
 
         $scope.items = Tasks.getItems();
 
@@ -76,18 +76,18 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             }
         };
 
-        $scope.$watch('onlyAssigned', function () {
-            if ($scope.onlyAssigned) {
-                $state.transitionTo('tasks.assigned');
+        $scope.$watch('assignedByMe', function () {
+            if ($scope.assignedByMe) {
+                $state.transitionTo('tasks.assignedByMe');
             } else {
                 $state.transitionTo('tasks.all');
             }
         });
 
-    }])
+    })
 
-    .controller('itemsController', ['$scope', '$state', 'Users', function ($scope, $state, Users) {
-        if ($state.is('tasks.assigned')) {
+    .controller('itemsController', function ($scope, $state, Users) {
+        if ($state.is('tasks.assignedByMe')) {
             $scope.tasksFilter = function (value) {
                 var currentUser = Users.getCurrentUser();
                 return value.task.author == currentUser && value.task.assignee != currentUser;
@@ -97,7 +97,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 return true;
             };
         }
-    }])
+    })
 
     .filter('datetime', function ($filter) {
         return function (date) {
@@ -108,20 +108,20 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
     .filter('tasksOrder', function () {
         return function (items) {
             items.sort(function (a, b) {
-                var aStatus = a.task.status;
-                var bStatus = b.task.status;
+                var aS = a.task.status;
+                var bS = b.task.status;
 
-                if (aStatus == Status.FINISHED && bStatus != Status.FINISHED) {
+                if (aS == Status.FINISHED && bS != Status.FINISHED) {
                     return 1;
                 }
-                if (aStatus != Status.FINISHED && bStatus == Status.FINISHED) {
+                if (aS != Status.FINISHED && bS == Status.FINISHED) {
                     return -1;
                 }
 
-                if (aStatus == Status.REOPENED && bStatus != Status.REOPENED) {
+                if (aS == Status.REOPENED && bS != Status.REOPENED) {
                     return -1;
                 }
-                if (aStatus != Status.REOPENED && bStatus == Status.REOPENED) {
+                if (aS != Status.REOPENED && bS == Status.REOPENED) {
                     return 1;
                 }
 
@@ -132,18 +132,18 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     })
 
-    .directive('userExist', ['Users', function (Users) {
+    .directive('tdUserExist', ['Users', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    ctrl.$setValidity('userExist', Users.isExistent(user));
+                    ctrl.$setValidity('tdUserExist', Users.isExistent(user));
                 });
             }
         }
     }])
 
-    .directive('autoRows', function () {
+    .directive('tdAutoRows', function () {
         function autoRows(textarea) {
             textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
             while (textarea.height() < textarea.get(0).scrollHeight - 10) {

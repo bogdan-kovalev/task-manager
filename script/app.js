@@ -9,10 +9,7 @@ Status = {
 };
 
 angular.module('app', ['ui.router', 'tasklist-front', 'tasklist-back', 'users-back', 'utils'])
-    .config(function ($stateProvider, $urlRouterProvider) {
-
-        $urlRouterProvider.otherwise("/all");
-
+    .config(function ($stateProvider) {
         $stateProvider
             .state('tasks', {
                 url: "/",
@@ -22,8 +19,10 @@ angular.module('app', ['ui.router', 'tasklist-front', 'tasklist-back', 'users-ba
                 url: "all",
                 templateUrl: "views/task-items.html"
             })
-            .state('tasks.assigned', {
-                url: "assigned",
+            .state('tasks.assignedByMe', {
+                url: "assigned-by-me",
                 templateUrl: "views/task-items.html"
             })
+    }).run(function ($state) {
+        $state.go('tasks.all');
     });

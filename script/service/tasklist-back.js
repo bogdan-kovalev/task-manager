@@ -136,11 +136,12 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
 
             TaskItem.prototype.restoreFrom = function (data) {
-                this._description = data._description;
-                this._author = data._author;
-                this._assignee = data._assignee;
-                this._timestamp = data._timestamp;
-                this._status = data._status;
+                var dataClone = Utils.clone(data);
+                this._description = dataClone._description;
+                this._author = dataClone._author;
+                this._assignee = dataClone._assignee;
+                this._timestamp = dataClone._timestamp;
+                this._status = dataClone._status;
             };
         }
 

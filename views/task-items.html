@@ -10,7 +10,7 @@
                 {{item.task.creationDate | datetime }}
                 <b>Assigned to:</b>
                 <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
-                       ng-model="item.task.assignee" required user-exist>
+                       ng-model="item.task.assignee" required td-user-exist>
                 <span class="error">
                     User does not exist
                 </span>
@@ -18,7 +18,7 @@
                        ng-show="item.access.edit">
             </div>
 
-            <textarea required name="description" class="inline-edit" rows=1 auto-rows
+            <textarea required name="description" class="inline-edit" rows=1 td-auto-rows
                       ng-model="item.task.description"
                       ng-trim="false"
                       ng-focus="onFocus(item);"
