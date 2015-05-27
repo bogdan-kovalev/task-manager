@@ -2,11 +2,12 @@
  * @author Bogdan Kovalev
  */
 
-angular.module('tasklist-back', ['utils']).
-    factory('Tasks', function (Utils) {
+angular.module('tasklist-back', ['utils', 'users-back'])
+    .factory('Tasks', function (Utils, Users) {
 
         function Model(storage) {
             this._storage = storage;
+            var currentUser = Users.getCurrentUser();
             var model = this;
 
             Model.prototype.addTask = function (description, author, assignee) {

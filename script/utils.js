@@ -1,18 +1,11 @@
-angular.module('utils', []).
-    factory('Utils', function () {
+/**
+ * @author Bogdan Kovalev
+ */
+
+angular.module('utils', [])
+
+    .factory('Utils', function () {
         var Utils = {};
-
-        Utils.autoRows = function (textarea) {
-            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
-            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
-                textarea.attr('rows', +textarea.attr('rows') + 1);
-            }
-        };
-
-        Utils.resetTextarea = function (textarea) {
-            textarea.val('');
-            textarea.attr('rows', 1);
-        };
 
         Utils.clone = function (obj) {
             var copy;
@@ -59,6 +52,10 @@ angular.module('utils', []).
         };
 
         return Utils;
+    })
+
+    .factory('jQuery', function () {
+        return jQuery;
     });
 
 KeyCode = {

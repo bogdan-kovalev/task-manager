@@ -2,9 +2,9 @@
  * @author Bogdan Kovalev
  */
 
-angular.module('tasklist-front', ['tasklist-back', 'utils'])
+angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Utils', function ($scope, $state, Tasks, Utils) {
+    .controller('widgetController', ['$scope', '$state', 'Tasks', 'Users', 'Utils', function ($scope, $state, Tasks, Users, Utils) {
 
         $scope.description = "";
         $scope.assignee = "";
@@ -22,8 +22,20 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             $scope.items[index] = Tasks.getItem(item.task.id);
         }
 
+        function updateItemAssignee(item) {
+            var index = $scope.items.lastIndexOf(item);
+            var validItem = Tasks.getItem(item.task.id);
+            $scope.items[index].task.assignee = validItem.task.assignee;
+            $scope.items[index].access = validItem.access;
+        }
+
+        function updateItemDescription(item) {
+            var index = $scope.items.lastIndexOf(item);
+            $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
+        }
+
         $scope.addTask = function () {
-            Tasks.addTask($scope.description, currentUser, $scope.assignee);
+            Tasks.addTask($scope.description, Users.getCurrentUser(), $scope.assignee);
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
@@ -45,6 +57,7 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
         $scope.saveDescription = function (item) {
             Tasks.changeTaskDescription(item.task.id, item.task.description);
+            updateItemDescription(item);
         };
 
         $scope.restoreDescription = function (item) {
@@ -53,7 +66,7 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
 
         $scope.reassignTask = function (item) {
             Tasks.assignTask(item.task.id, item.task.assignee);
-            updateItem(item);
+            updateItemAssignee(item);
         };
 
         $scope.onFocus = function (item) {
@@ -63,23 +76,24 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
             }
         };
 
-        $scope.filterAssigned = function () {
+        $scope.$watch('onlyAssigned', function () {
             if ($scope.onlyAssigned) {
                 $state.transitionTo('tasks.assigned');
             } else {
                 $state.transitionTo('tasks.all');
             }
-        }
+        });
 
     }])
 
-    .controller('itemsController', ['$scope', '$state', function ($scope, $state) {
+    .controller('itemsController', ['$scope', '$state', 'Users', function ($scope, $state, Users) {
         if ($state.is('tasks.assigned')) {
             $scope.tasksFilter = function (value) {
+                var currentUser = Users.getCurrentUser();
                 return value.task.author == currentUser && value.task.assignee != currentUser;
             };
         } else if ($state.is('tasks.all')) {
-            $scope.tasksFilter = function (value) {
+            $scope.tasksFilter = function () {
                 return true;
             };
         }
@@ -89,4 +103,57 @@ angular.module('tasklist-front', ['tasklist-back', 'utils'])
         return function (date) {
             return date == null ? "" : $filter('date')(date, 'MMM dd yyyy - HH:mm:ss');
         };
+    })
+
+    .filter('tasksOrder', function () {
+        return function (items) {
+
+            var _reopened = [];
+            var _new = [];
+            var _finished = [];
+
+            angular.forEach(items, function (item) {
+                switch (item.task.status) {
+                    case Status.REOPENED :
+                        _reopened.push(item);
+                        break;
+                    case Status.NEW :
+                        _new.push(item);
+                        break;
+                    case Status.FINISHED :
+                        _finished.push(item);
+                        break;
+                }
+            });
+
+            return _reopened.concat(_new, _finished);
+        }
+    })
+
+    .directive('userExist', ['Users', function (Users) {
+        return {
+            require: '?ngModel',
+            link: function (scope, elem, attrs, ctrl) {
+                scope.$watch(elem.attr('ng-model'), function (user) {
+                    ctrl.$setValidity('userExist', Users.isExistent(user));
+                });
+            }
+        }
+    }])
+
+    .directive('autoRows', function () {
+        function autoRows(textarea) {
+            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
+            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
+                textarea.attr('rows', +textarea.attr('rows') + 1);
+            }
+        }
+
+        return {
+            link: function (scope, elem, attrs, ctrl) {
+                scope.$watch(elem.attr('ng-model'), function (user) {
+                    autoRows(elem);
+                });
+            }
+        }
     });

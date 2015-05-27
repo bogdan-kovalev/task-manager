@@ -71,9 +71,6 @@ textarea:focus {
     border-color: cornflowerblue;
 }
 
-.save-btn {
-}
-
 .finish-btn {
     float: right;
 }
@@ -109,6 +106,23 @@ input.assign {
     padding: 5px;
 }
 
-.ui-autocomplete, .task-properties {
-    font-size: 12px;
+.task-item input.ng-invalid,
+.task-item textarea.ng-invalid {
+    border: 1px solid rgba(255, 0, 0, 0.32);
+}
+
+.task-item textarea.ng-invalid ~ .save-btn,
+.task-item textarea.ng-invalid ~ .finish-btn,
+.task-item input.ng-invalid ~ .assign-btn,
+.new-task textarea.ng-invalid ~ .new-task-btn {
+    display: none;
+}
+
+.error {
+    display: none;
+    color: rgba(255, 0, 0, 0.83);
+}
+
+.ng-invalid-user-exist ~ span.error {
+    display: inline;
 }
