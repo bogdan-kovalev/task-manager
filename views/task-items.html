@@ -1,0 +1,41 @@
+<div class="task-items-wrapper" ng-controller="itemsController">
+    <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
+
+    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter" class="task-item {{item.task.status}}"
+         id="{{item.task.id}}"
+         ng-mouseenter="item.hovered = true;"
+         ng-mouseleave="item.hovered = false;">
+        <form name="taskItemForm" novalidate>
+            <div class="task-properties">
+                {{item.task.creationDate | datetime }}
+                <b>Assigned to:</b>
+                <input name="assignee" ng-show="item.access.edit" class='assign inline-edit' placeholder="Assign to"
+                       ng-model="item.task.assignee" required user-exist>
+                <span class="error">
+                    User does not exist
+                </span>
+                <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
+                       ng-show="item.access.edit">
+            </div>
+
+            <textarea required name="description" class="inline-edit" rows=1 auto-rows
+                      ng-model="item.task.description"
+                      ng-trim="false"
+                      ng-focus="onFocus(item);"
+                      ng-readonly="!item.access.edit"></textarea>
+
+            <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item); item.focused = false;"
+                   value="Cancel"
+                   ng-show="item.access.edit && item.focused">
+            <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
+                   value="Save"
+                   ng-show="item.access.edit && item.focused">
+            <input type="submit" class="btn delete-btn" ng-click="deleteTask(item);" value="Delete"
+                   ng-show="item.access.delete && item.hovered">
+            <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item);" value="Re-open"
+                   ng-show="item.access.reopen && item.hovered">
+            <input type="submit" class="btn finish-btn" ng-click="finishTask(item);" value="Finish"
+                   ng-show="item.access.finish && item.hovered && !item.focused">
+        </form>
+    </div>
+</div>
