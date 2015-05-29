@@ -23,6 +23,7 @@ angular.module('app', ['ui.router', 'tasklist-front', 'tasklist-back', 'users-ba
                 url: "assigned-by-me",
                 templateUrl: "views/task-items.html"
             })
-    }).run(function ($state) {
+    })
+    .run(function ($state) {
         $state.go('tasks.all');
     });

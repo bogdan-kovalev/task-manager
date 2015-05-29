@@ -22,6 +22,7 @@
                       ng-model="item.task.description"
                       ng-trim="false"
                       ng-focus="onFocus(item);"
+                      ng-blur="onBlur(item);"
                       ng-readonly="!item.access.edit"></textarea>
 
             <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item); item.focused = false;"

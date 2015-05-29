@@ -4,7 +4,7 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', function ($scope, $state, Tasks, Users, Utils) {
+    .controller('widgetController', function ($scope, $state, TaskItem, Tasks, Users, Utils) {
 
         $scope.description = "";
         $scope.assignee = "";
@@ -12,30 +12,28 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.items = Tasks.getItems();
 
-        $scope.items.forEach(function (item) {
-            item.hovered = false;
-            item.focused = false;
-        });
+        $scope.updateItem = function (item) {
 
-        function updateItem(item) {
             var index = $scope.items.lastIndexOf(item);
             $scope.items[index] = Tasks.getItem(item.task.id);
-        }
+            console.log($scope.items);
+        };
 
-        function updateItemAssignee(item) {
+        $scope.updateItemAssignee = function (item) {
             var index = $scope.items.lastIndexOf(item);
             var validItem = Tasks.getItem(item.task.id);
             $scope.items[index].task.assignee = validItem.task.assignee;
             $scope.items[index].access = validItem.access;
-        }
+        };
 
-        function updateItemDescription(item) {
+        $scope.updateItemDescription = function (item) {
             var index = $scope.items.lastIndexOf(item);
             $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
-        }
+        };
 
         $scope.addTask = function () {
-            Tasks.addTask($scope.description, Users.getCurrentUser(), $scope.assignee);
+            var task = new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
+            Tasks.addTask(task);
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
@@ -47,17 +45,17 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.finishTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.FINISHED);
-            updateItem(item);
+            $scope.updateItem(item);
         };
 
         $scope.reopenTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.REOPENED);
-            updateItem(item);
+            $scope.updateItem(item);
         };
 
         $scope.saveDescription = function (item) {
             Tasks.changeTaskDescription(item.task.id, item.task.description);
-            updateItemDescription(item);
+            $scope.updateItemDescription(item);
         };
 
         $scope.restoreDescription = function (item) {
@@ -66,13 +64,19 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.reassignTask = function (item) {
             Tasks.assignTask(item.task.id, item.task.assignee);
-            updateItemAssignee(item);
+            $scope.updateItemAssignee(item);
         };
 
         $scope.onFocus = function (item) {
             if (!item.focused) {
                 item.descriptionBkp = item.task.description;
                 item.focused = true;
+            }
+        };
+
+        $scope.onBlur = function (item) {
+            if (item.descriptionBkp == item.task.description) {
+                item.focused = false;
             }
         };
 
@@ -132,7 +136,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     })
 
-    .directive('tdUserExist', ['Users', function (Users) {
+    .directive('tdUserExist', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
@@ -141,7 +145,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 });
             }
         }
-    }])
+    })
 
     .directive('tdAutoRows', function () {
         function autoRows(textarea) {
@@ -152,10 +156,27 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
 
         return {
-            link: function (scope, elem, attrs, ctrl) {
-                scope.$watch(elem.attr('ng-model'), function (user) {
+            link: function (scope, elem) {
+                scope.$watch(elem.attr('ng-model'), function () {
                     autoRows(elem);
                 });
             }
         }
+    })
+
+    .directive('tdGoogleCalendar', function (GoogleCalendarService, TaskItem, Tasks) {
+        return {
+            link: function (scope) {
+                GoogleCalendarService.fetchTasks().then(function (tasks) {
+
+                    tasks.forEach(function (task) {
+                        var t = new TaskItem();
+                        t.restoreFrom(task);
+                        Tasks.addTask(t);
+                    });
+
+                    scope.items = Tasks.getItems();
+                });
+            }
+        };
     });

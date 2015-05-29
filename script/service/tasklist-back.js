@@ -3,15 +3,14 @@
  */
 
 angular.module('tasklist-back', ['utils', 'users-back'])
-    .factory('Tasks', function (Utils, Users) {
+    .service('Tasks', function (Utils, Users, TaskItem, Storage) {
 
         function Model(storage) {
             this._storage = storage;
             var currentUser = Users.getCurrentUser();
             var model = this;
 
-            Model.prototype.addTask = function (description, author, assignee) {
-                var task = new TaskItem(description, author, assignee);
+            Model.prototype.addTask = function (task) {
                 model._storage.add(task);
             };
 
@@ -81,6 +80,9 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
         }
 
+        return new Model(new Storage());
+    })
+    .factory('TaskItem', function (Utils) {
         function TaskItem(description, author, assignee) {
             this._description = Utils.clone(description);
             this._author = Utils.clone(author);
@@ -145,6 +147,9 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
         }
 
+        return (TaskItem);
+    })
+    .factory('TaskList', function () {
         function TaskList(array) {
             var that = this;
 
@@ -178,6 +183,9 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             this.appendFromArray(array);
         }
 
+        return (TaskList);
+    })
+    .factory('Storage', function (TaskItem, TaskList) {
         function Storage(storageKey) {
             function tryRestoreFromLocal(localStorageKey) {
                 var restoredTasks = [];
@@ -241,6 +249,5 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
         }
 
-        var model = new Model(new Storage());
-        return model;
+        return (Storage);
     });

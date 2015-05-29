@@ -1,13 +1,13 @@
-<div class="widget" ng-controller="widgetController">
+<div class="widget" ng-controller="widgetController" td-google-calendar>
 
     <form name="newTaskForm" novalidate ng-submit="addTask();">
         <div class="new-task">
-            <textarea required ng-model='description' name="description" class="task-txt new-task-txt" rows=1
+            <textarea required ng-model='description' name="description" class="task-txt" rows=1
                       td-auto-rows
                       ng-trim="false"
                       placeholder="Enter your task description"></textarea>
 
-            <input ng-model='assignee' class='assign inline-edit' placeholder="Assign to">
+            <input ng-model='assignee' class='assign' placeholder="Assign to">
 
             <input type="submit" class="btn new-task-btn" value="New task">
         </div>
