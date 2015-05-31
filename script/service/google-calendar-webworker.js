@@ -2,19 +2,61 @@
  * @author Bogdan Kovalev
  */
 
-self.downloadTasks = function () {
-
-    // TODO request to Google Calendar API
-
-    var sampleTask = {
-        _description: "from web worker",
-        _author: "Bogdan",
-        _assignee: "Bogdan",
-        _timestamp: new Date().getTime(),
+function convertToTask(item) {
+    return {
+        _description: item.summary,
+        _author: item.creator.displayName,
+        _assignee: item.creator.displayName,
+        _timestamp: new Date(item.created).getTime(),
         _status: 'new'
     };
+}
 
-    self.postMessage([sampleTask]);
+self.getUserInfo = function (access_token) {
+
+    /* NOT working yet*/
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token, false);
+    xhr.send();
+
+    if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+    } else {
+        try {
+            console.log(xhr.responseText);
+            var userInfo = JSON.parse(xhr.responseText);
+            self.postMessage(userInfo);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+};
+
+self.downloadTasks = function (access_token) {
+
+    var tasks = [];
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events?access_token=' + access_token, false);
+    xhr.send();
+
+    if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+    } else {
+        try {
+            var items = JSON.parse(xhr.responseText).items;
+
+            for (var i = 0; i < items.length; ++i) {
+                tasks.push(convertToTask(items[i]));
+            }
+
+            self.postMessage(tasks);
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
 };
 
 self.onmessage = function (event) {

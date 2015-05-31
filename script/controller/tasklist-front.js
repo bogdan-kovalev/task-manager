@@ -165,18 +165,26 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
     })
 
     .directive('tdGoogleCalendar', function (GoogleCalendarService, TaskItem, Tasks) {
+        /* TODO use google account as current user */
         return {
             link: function (scope) {
-                GoogleCalendarService.fetchTasks().then(function (tasks) {
 
+                function addToModel(tasks) {
                     tasks.forEach(function (task) {
                         var t = new TaskItem();
                         t.restoreFrom(task);
                         Tasks.addTask(t);
                     });
-
                     scope.items = Tasks.getItems();
-                });
+                }
+
+                /* TODO google-clent.js onload*/
+                setTimeout(function () {
+                    GoogleCalendarService.auth().then(function () {
+                        GoogleCalendarService.fetchTasks().then(addToModel);
+                    });
+                }, 300);
+
             }
-        };
+        }
     });

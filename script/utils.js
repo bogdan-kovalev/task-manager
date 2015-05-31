@@ -56,6 +56,10 @@ angular.module('utils', [])
 
     .factory('jQuery', function () {
         return jQuery;
+    })
+
+    .factory('GoogleAPI', function () {
+        return gapi;
     });
 
 KeyCode = {
