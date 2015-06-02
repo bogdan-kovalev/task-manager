@@ -3,7 +3,7 @@
  */
 
 angular.module('tasklist-back', ['utils', 'users-back'])
-    .service('Tasks', function (Utils, Users, TaskItem, Storage) {
+    .service('Tasks', function (Utils, Users, Storage) {
 
         function Model(storage) {
             this._storage = storage;

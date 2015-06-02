@@ -14,17 +14,15 @@ function convertToTask(item) {
 
 self.getUserInfo = function (access_token) {
 
-    /* NOT working yet*/
-
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token, false);
+    xhr.open('GET', 'https://www.googleapis.com/plus/v1/people/me', false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
     xhr.send();
 
     if (xhr.status != 200) {
         console.log(xhr.status + ': ' + xhr.statusText);
     } else {
         try {
-            console.log(xhr.responseText);
             var userInfo = JSON.parse(xhr.responseText);
             self.postMessage(userInfo);
         } catch (e) {
@@ -38,7 +36,8 @@ self.downloadTasks = function (access_token) {
     var tasks = [];
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events?access_token=' + access_token, false);
+    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events', false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
     xhr.send();
 
     if (xhr.status != 200) {

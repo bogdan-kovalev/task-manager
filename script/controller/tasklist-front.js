@@ -4,16 +4,35 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', function ($scope, $state, TaskItem, Tasks, Users, Utils) {
+    .controller('widgetController', function ($scope, $state, TaskItem, Tasks, Users, Utils, GoogleCalendarService) {
 
         $scope.description = "";
         $scope.assignee = "";
-        $scope.assignedByMe = $state.is('tasks.assignedByMe');
+        $scope.properties = {
+            list: $state.current.name
+        };
 
         $scope.items = Tasks.getItems();
 
-        $scope.updateItem = function (item) {
+        /* TODO refactor */
+        if (!Users.isLocalUser()) {
+            GoogleCalendarService.fetchTasks().then(function (tasks) {
+                tasks.forEach(function (task) {
+                    var ti = new TaskItem();
+                    ti.restoreFrom(task);
 
+                    if (!Users.isExistent(ti.getAuthor())) {
+                        Users.add(ti.getAuthor());
+                    }
+
+                    $scope.addTask(ti);
+                });
+                $scope.items = Tasks.getItems();
+            });
+        }
+        /**/
+
+        $scope.updateItem = function (item) {
             var index = $scope.items.lastIndexOf(item);
             $scope.items[index] = Tasks.getItem(item.task.id);
             console.log($scope.items);
@@ -31,11 +50,18 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
         };
 
-        $scope.addTask = function () {
-            var task = new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
-            Tasks.addTask(task);
+        $scope.uiAddTask = function () {
+            $scope.addTask(createTaskItem());
             $scope.description = "";
             $scope.items = Tasks.getItems();
+        };
+
+        $scope.addTask = function (task) {
+            Tasks.addTask(task);
+        };
+
+        $scope.createTaskItem = function () {
+            return new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
         };
 
         $scope.deleteTask = function (item) {
@@ -80,27 +106,29 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             }
         };
 
-        $scope.$watch('assignedByMe', function () {
-            if ($scope.assignedByMe) {
-                $state.transitionTo('tasks.assignedByMe');
-            } else {
-                $state.transitionTo('tasks.all');
-            }
+        $scope.$watch('properties.list', function () {
+            $state.go($scope.properties.list);
         });
 
     })
 
     .controller('itemsController', function ($scope, $state, Users) {
-        if ($state.is('tasks.assignedByMe')) {
-            $scope.tasksFilter = function (value) {
-                var currentUser = Users.getCurrentUser();
-                return value.task.author == currentUser && value.task.assignee != currentUser;
-            };
-        } else if ($state.is('tasks.all')) {
+        /* TODO refactor */
+        var currentUser = Users.getCurrentUser();
+        if ($state.is('tasks.all')) {
             $scope.tasksFilter = function () {
                 return true;
             };
+        } else if ($state.is('tasks.my')) {
+            $scope.tasksFilter = function (value) {
+                return value.task.author == currentUser;
+            };
+        } else if ($state.is('tasks.assignedByMe')) {
+            $scope.tasksFilter = function (value) {
+                return value.task.author == currentUser && value.task.assignee != currentUser;
+            };
         }
+        /**/
     })
 
     .filter('datetime', function ($filter) {
@@ -164,27 +192,12 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     })
 
-    .directive('tdGoogleCalendar', function (GoogleCalendarService, TaskItem, Tasks) {
-        /* TODO use google account as current user */
+    .directive('tdGoogleAccount', function ($state, Users) {
         return {
-            link: function (scope) {
-
-                function addToModel(tasks) {
-                    tasks.forEach(function (task) {
-                        var t = new TaskItem();
-                        t.restoreFrom(task);
-                        Tasks.addTask(t);
-                    });
-                    scope.items = Tasks.getItems();
-                }
-
-                /* TODO google-clent.js onload*/
-                setTimeout(function () {
-                    GoogleCalendarService.auth().then(function () {
-                        GoogleCalendarService.fetchTasks().then(addToModel);
-                    });
-                }, 300);
-
+            link: function () {
+                Users.loginToGoogle().then(function () {
+                    $state.go('tasks.my');
+                })
             }
         }
     });
