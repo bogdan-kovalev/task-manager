@@ -51,7 +51,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         };
 
         $scope.uiAddTask = function () {
-            $scope.addTask(createTaskItem());
+            $scope.addTask($scope.createTaskItem());
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
