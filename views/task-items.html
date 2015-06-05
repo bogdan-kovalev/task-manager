@@ -11,7 +11,7 @@
                 <span class="label label-info">{{item.task.creationDate | datetime }}</span>
                 <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>
-                <input name="assignee" class='assign inline-edit' placeholder="Assign to"
+                <input name="assignee" class='assign inline-edit input-sm' placeholder="Assign to"
                        ng-model="item.task.assignee" required td-existent-user>
                 <span class="error">
                     User does not exist
@@ -24,7 +24,7 @@
             </div>
 
             <div>
-            <textarea required name="description" class="inline-edit" rows=1 td-auto-rows
+            <textarea required name="description" class="inline-edit input-sm" rows=1 td-auto-rows
                       ng-model="item.task.description"
                       ng-trim="false"
                       ng-focus="onFocus(item);"

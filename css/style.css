@@ -1,5 +1,10 @@
 textarea {
     overflow: hidden;
+    width: 70%;
+}
+
+textarea, input {
+    vertical-align: top;
 }
 
 .finished textarea {
