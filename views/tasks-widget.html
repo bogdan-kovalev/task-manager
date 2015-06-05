@@ -1,26 +1,25 @@
-<div class="widget" ng-controller="widgetController">
+<div class="widget panel panel-default" ng-controller="widgetController">
+    <div class="panel-heading">
+        <form name="newTaskForm" class="new-task" novalidate ng-submit="uiAddTask();">
+                <textarea required ng-model='description' name="description" class="task-txt input-sm" rows=1
+                          td-auto-rows ng-trim="false"
+                          placeholder="Enter your task description">
+                </textarea>
 
-    <form name="newTaskForm" novalidate ng-submit="uiAddTask();">
-        <div class="new-task">
-            <textarea required ng-model='description' name="description" class="task-txt" rows=1
-                      td-auto-rows
-                      ng-trim="false"
-                      placeholder="Enter your task description"></textarea>
-
-            <input ng-model='assignee' class='assign' placeholder="Assign to">
-
-            <input type="submit" class="btn new-task-btn" value="New task">
+            <input ng-model='assignee' class='assign input-sm' placeholder="Assign to">
+            <button type="submit" class="btn btn-primary btn-sm new-task-btn">
+                <span class="glyphicon glyphicon-plus"></span> New task
+            </button>
+        </form>
+        <div class="widget-properties">
+            <input type="radio" id="all" ng-model="properties.list" value="tasks.all">
+            <label for="all"><b>All</b></label>
+            <input type="radio" id="my" ng-model="properties.list" value="tasks.my">
+            <label for="my"><b>My</b></label>
+            <input type="radio" id="assigned-by-me" ng-model="properties.list" value="tasks.assignedByMe">
+            <label for="assigned-by-me"><b>Assigned by me</b></label>
         </div>
-    </form>
-
-    <div class="widget-properties">
-        <input type="radio" id="all" ng-model="properties.list" value="tasks.all">
-        <label for="all"><b>All</b></label>
-        <input type="radio" id="my" ng-model="properties.list" value="tasks.my">
-        <label for="my"><b>My</b></label>
-        <input type="radio" id="assigned-by-me" ng-model="properties.list" value="tasks.assignedByMe">
-        <label for="assigned-by-me"><b>Assigned by me</b></label>
     </div>
 
-    <div ui-view></div>
+    <div ui-view class="panel-body"></div>
 </div>

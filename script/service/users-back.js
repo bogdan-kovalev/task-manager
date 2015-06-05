@@ -14,7 +14,7 @@ angular.module('users-back', [])
             var users = {};
             users[currentUser] = currentUser;
 
-            Users.prototype.isExistent = function (user) {
+            Users.prototype.exists = function (user) {
                 return user in users;
             };
 

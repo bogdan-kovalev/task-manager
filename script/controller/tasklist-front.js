@@ -21,7 +21,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                     var ti = new TaskItem();
                     ti.restoreFrom(task);
 
-                    if (!Users.isExistent(ti.getAuthor())) {
+                    if (!Users.exists(ti.getAuthor())) {
                         Users.add(ti.getAuthor());
                     }
 
@@ -35,7 +35,6 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         $scope.updateItem = function (item) {
             var index = $scope.items.lastIndexOf(item);
             $scope.items[index] = Tasks.getItem(item.task.id);
-            console.log($scope.items);
         };
 
         $scope.updateItemAssignee = function (item) {
@@ -164,12 +163,12 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     })
 
-    .directive('tdUserExist', function (Users) {
+    .directive('tdExistentUser', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    ctrl.$setValidity('tdUserExist', Users.isExistent(user));
+                    ctrl.$setValidity('tdExistentUser', Users.exists(user));
                 });
             }
         }
@@ -177,10 +176,8 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
     .directive('tdAutoRows', function () {
         function autoRows(textarea) {
-            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
-            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
-                textarea.attr('rows', +textarea.attr('rows') + 1);
-            }
+            textarea.css('height', 'auto');
+            textarea.css('height', textarea.get(0).scrollHeight + 'px');
         }
 
         return {
