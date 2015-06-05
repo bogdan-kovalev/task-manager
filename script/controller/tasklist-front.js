@@ -177,10 +177,8 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
     .directive('tdAutoRows', function () {
         function autoRows(textarea) {
-            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
-            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
-                textarea.attr('rows', +textarea.attr('rows') + 1);
-            }
+            textarea.css('height', 'auto');
+            textarea.css('height', textarea.get(0).scrollHeight + 'px');
         }
 
         return {
