@@ -7,7 +7,7 @@
          ng-mouseenter="item.hovered = true;"
          ng-mouseleave="item.hovered = false;">
         <form name="taskItemForm" novalidate>
-            <div>
+            <div class="task-properties">
                 <span class="label label-info">{{item.task.creationDate | datetime }}</span>
                 <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>

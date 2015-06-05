@@ -1,16 +1,41 @@
 textarea {
     overflow: hidden;
+    resize: none;
     width: 70%;
 }
 
 textarea, input {
     vertical-align: top;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    outline: none;
+    border-width: 1px;
+}
+
+.inline-edit {
+    border: solid 1px;
+    border-color: transparent;
+    background-color: inherit;
+}
+
+input:hover,
+textarea:hover {
+    border-color: rgb(164, 217, 255);
+}
+
+input:focus,
+textarea:focus {
+    border-color: rgb(164, 217, 255);
+    background-color: white;
 }
 
 .finished textarea {
     text-decoration: line-through;
-    box-shadow: none !important;
-    border: none !important;
+    background-color: transparent;
+    border: none;
 }
 
 .task-item input.ng-invalid,
@@ -30,6 +55,18 @@ textarea, input {
     color: rgba(255, 0, 0, 0.83);
 }
 
-.ng-invalid-td-existent-user ~ span.error {
+.ng-invalid-td-existent-user ~ .error {
     display: inline;
+}
+
+.task-properties {
+    margin-bottom: 5px;
+}
+
+.widget-properties {
+    margin-top: 5px;
+}
+
+.container {
+    margin-top: 10px;
 }
