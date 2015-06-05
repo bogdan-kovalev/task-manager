@@ -21,6 +21,6 @@
     color: rgba(255, 0, 0, 0.83);
 }
 
-.ng-invalid-user-exist ~ span.error {
+.ng-invalid-td-existent-user ~ span.error {
     display: inline;
 }

@@ -21,7 +21,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                     var ti = new TaskItem();
                     ti.restoreFrom(task);
 
-                    if (!Users.isExistent(ti.getAuthor())) {
+                    if (!Users.exists(ti.getAuthor())) {
                         Users.add(ti.getAuthor());
                     }
 
@@ -164,12 +164,12 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         }
     })
 
-    .directive('tdUserExist', function (Users) {
+    .directive('tdExistentUser', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    ctrl.$setValidity('tdUserExist', Users.isExistent(user));
+                    ctrl.$setValidity('tdExistentUser', Users.exists(user));
                 });
             }
         }

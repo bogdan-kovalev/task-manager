@@ -10,7 +10,7 @@
                 {{item.task.creationDate | datetime }}
                 <b>Assigned to:</b>
                 <input name="assignee" class='assign inline-edit' placeholder="Assign to"
-                       ng-model="item.task.assignee" required td-user-exist>
+                       ng-model="item.task.assignee" required td-existent-user>
                 <span class="error">
                     User does not exist
                 </span>
