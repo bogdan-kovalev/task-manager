@@ -35,7 +35,6 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         $scope.updateItem = function (item) {
             var index = $scope.items.lastIndexOf(item);
             $scope.items[index] = Tasks.getItem(item.task.id);
-            console.log($scope.items);
         };
 
         $scope.updateItemAssignee = function (item) {

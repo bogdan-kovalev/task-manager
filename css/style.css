@@ -1,3 +1,7 @@
+textarea {
+    overflow: hidden;
+}
+
 .finished textarea {
     text-decoration: line-through;
     box-shadow: none !important;

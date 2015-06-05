@@ -1,23 +1,29 @@
 <div class="task-items-wrapper" ng-controller="itemsController">
     <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
-    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter" class="task-item {{item.task.status}}"
+    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter"
+         class="task-item {{item.task.status}} well well-sm"
          id="{{item.task.id}}"
          ng-mouseenter="item.hovered = true;"
          ng-mouseleave="item.hovered = false;">
         <form name="taskItemForm" novalidate>
-            <div class="task-properties">
-                {{item.task.creationDate | datetime }}
+            <div>
+                <span class="label label-info">{{item.task.creationDate | datetime }}</span>
+                <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>
                 <input name="assignee" class='assign inline-edit' placeholder="Assign to"
                        ng-model="item.task.assignee" required td-existent-user>
                 <span class="error">
                     User does not exist
                 </span>
-                <input type="submit" class="btn assign-btn" ng-click="reassignTask(item)" value="Assign"
-                       ng-show="item.access.edit">
+                <button type="submit" class="btn btn-default btn-sm assign-btn" ng-click="reassignTask(item)"
+                        value="Assign"
+                        ng-show="item.access.edit">
+                    <span class="glyphicon glyphicon-user"></span> Assign
+                </button>
             </div>
 
+            <div>
             <textarea required name="description" class="inline-edit" rows=1 td-auto-rows
                       ng-model="item.task.description"
                       ng-trim="false"
@@ -25,18 +31,29 @@
                       ng-blur="onBlur(item);"
                       ng-readonly="!item.access.edit"></textarea>
 
-            <input type="submit" class="btn cancel-btn" ng-click="restoreDescription(item); item.focused = false;"
-                   value="Cancel"
-                   ng-show="item.access.edit && item.focused">
-            <input type="submit" class="btn save-btn" ng-click="saveDescription(item); item.focused = false;"
-                   value="Save"
-                   ng-show="item.access.edit && item.focused">
-            <input type="submit" class="btn delete-btn" ng-click="deleteTask(item);" value="Delete"
-                   ng-show="item.access.delete && item.hovered">
-            <input type="submit" class="btn reopen-btn" ng-click="reopenTask(item);" value="Re-open"
-                   ng-show="item.access.reopen && item.hovered">
-            <input type="submit" class="btn finish-btn" ng-click="finishTask(item);" value="Finish"
-                   ng-show="item.access.finish && item.hovered && !item.focused">
+                <button type="submit" class="btn btn-success btn-sm save-btn"
+                        ng-click="saveDescription(item); item.focused = false;"
+                        ng-show="item.access.edit && item.focused">Save
+                </button>
+                <button type="submit" class="btn btn-default btn-sm cancel-btn"
+                        ng-click="restoreDescription(item); item.focused = false;"
+                        ng-show="item.access.edit && item.focused">Cancel
+                </button>
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-default btn-sm reopen-btn" ng-click="reopenTask(item);"
+                            ng-show="item.access.reopen && item.hovered">
+                        <span class="glyphicon glyphicon-retweet"></span> Re-open
+                    </button>
+                    <button type="submit" class="btn btn-default btn-sm finish-btn" ng-click="finishTask(item);"
+                            ng-show="item.access.finish && item.hovered && !item.focused">
+                        <span class="glyphicon glyphicon-ok"></span> Finish
+                    </button>
+                    <button type="submit" class="btn btn-danger btn-sm delete-btn" ng-click="deleteTask(item);"
+                            ng-show="item.access.delete && item.hovered">
+                        <span class="glyphicon glyphicon-remove"></span> Delete
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
