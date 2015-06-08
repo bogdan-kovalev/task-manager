@@ -33,14 +33,18 @@ angular.module('tasklist-back')
 
         function fastAuth() {
             var defer = $q.defer();
-            GoogleAPI.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: true}, function (authResult) {
-                if (authResult && !authResult.error) {
-                    _accessToken = authResult.access_token;
-                    defer.resolve();
-                } else {
-                    consentAuth(defer);
-                }
-            });
+            if (GoogleAPI.auth) {
+                GoogleAPI.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: true}, function (authResult) {
+                    if (authResult && !authResult.error) {
+                        _accessToken = authResult.access_token;
+                        defer.resolve();
+                    } else {
+                        consentAuth(defer);
+                    }
+                });
+            } else {
+                defer.reject('Google authorization rejected');
+            }
             return defer.promise;
         }
 
