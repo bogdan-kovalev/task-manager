@@ -1,4 +1,9 @@
 <div class="widget panel panel-default" ng-controller="widgetController">
+
+    <datalist id="users-datalist">
+        <option ng-repeat="(key, value) in usersMap" value={{value}}>
+    </datalist>
+
     <div class="panel-heading">
         <form name="newTaskForm" class="new-task" novalidate ng-submit="uiAddTask();">
                 <textarea required ng-model='description' name="description" class="task-txt input-sm" rows=1
@@ -6,7 +11,7 @@
                           placeholder="Enter your task description">
                 </textarea>
 
-            <input ng-model='assignee' class='assign input-sm' placeholder="Assign to">
+            <input ng-model='assignee' list="users-datalist" class='assign input-sm' placeholder="Assign to">
             <button type="submit" class="btn btn-primary btn-sm new-task-btn">
                 <span class="glyphicon glyphicon-plus"></span> New task
             </button>

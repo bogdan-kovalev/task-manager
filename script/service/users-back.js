@@ -33,10 +33,13 @@ angular.module('users-back', [])
             Users.prototype.loginToGoogle = function () {
                 return GoogleCalendarService.auth()
                     .then(function () {
-                        var user = GoogleCalendarService.getUserInfo().displayName;
-                        currentUser = user;
+                        currentUser = GoogleCalendarService.getUserInfo().displayName;
                     })
-            }
+            };
+
+            Users.prototype.getUsersMap = function () {
+                return users;
+            };
         }
 
         return new Users();
