@@ -5,7 +5,7 @@
          class="task-item {{item.task.status}} well well-sm"
          id="{{item.task.id}}"
          ng-mouseenter="item.hovered = true;"
-         ng-mouseleave="item.hovered = false;">
+         ng-mouseleave="item.hovered = false; showingDeleteConfirmation = false;">
         <form name="taskItemForm" novalidate>
             <div class="task-properties">
                 <span class="label label-info">{{item.task.creationDate | datetime }}</span>
@@ -48,9 +48,11 @@
                             ng-show="item.access.finish && item.hovered && !item.focused">
                         <span class="glyphicon glyphicon-ok"></span> Finish
                     </button>
-                    <button type="submit" class="btn btn-danger btn-sm delete-btn" ng-click="deleteTask(item);"
+                    <button type="submit" class="btn btn-danger btn-sm delete-btn"
+                            ng-click="showingDeleteConfirmation ? deleteTask(item) : showingDeleteConfirmation=true"
                             ng-show="item.access.delete && item.hovered">
-                        <span class="glyphicon glyphicon-remove"></span> Delete
+                        <span class="glyphicon glyphicon-remove"></span> {{showingDeleteConfirmation ? 'Confirm' :
+                        'Delete'}}
                     </button>
                 </div>
             </div>
