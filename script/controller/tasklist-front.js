@@ -52,7 +52,13 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         };
 
         $scope.uiAddTask = function () {
-            $scope.addTask($scope.createTaskItem());
+            var task = $scope.createTaskItem();
+            $scope.addTask(task);
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.addTask(task.getDTO());
+            }
+
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
@@ -68,6 +74,10 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         $scope.deleteTask = function (item) {
             Tasks.deleteTask(item.task.id);
             Utils.remove($scope.items, item);
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.deleteTask(item.task.id);
+            }
         };
 
         $scope.finishTask = function (item) {

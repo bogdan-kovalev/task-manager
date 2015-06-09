@@ -93,5 +93,13 @@ angular.module('tasklist-back')
             });
         };
 
+        service.addTask = function (taskDTO) {
+            callWebWorker('addTask', {access_token: accessToken, calendar_id: calendarId, task: taskDTO});
+        };
+
+        service.deleteTask = function (taskId) {
+            callWebWorker('deleteTask', {access_token: accessToken, calendar_id: calendarId, task_id: taskId});
+        };
+
         return service;
     });
