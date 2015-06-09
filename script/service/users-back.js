@@ -34,6 +34,7 @@ angular.module('users-back', [])
                 return GoogleCalendarService.auth()
                     .then(function () {
                         currentUser = GoogleCalendarService.getUserInfo().displayName;
+                        users[currentUser] = currentUser;
                     })
             };
 

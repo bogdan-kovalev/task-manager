@@ -12,11 +12,12 @@ function convertToTask(item) {
     };
 }
 
-self.getUserInfo = function (access_token) {
+self.getUserInfo = function (args) {
+    var accessToken = args.access_token;
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://www.googleapis.com/plus/v1/people/me', false);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.send();
 
     if (xhr.status != 200) {
@@ -31,13 +32,71 @@ self.getUserInfo = function (access_token) {
     }
 };
 
-self.downloadTasks = function (access_token) {
+self.getCalendar = function (args) {
+    var accessToken = args.access_token,
+        calendarSummary = args.calendar_summary;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.send();
+
+    if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+    } else {
+        try {
+            var calendarList = JSON.parse(xhr.responseText);
+            var calendar = null;
+
+            for (var i = 0; i < calendarList.items.length; i++) {
+                if (calendarList.items[i].summary == calendarSummary) {
+                    calendar = calendarList.items[i];
+                    break;
+                }
+            }
+
+            if (!calendar) {
+                self.createCalendar(args);
+            } else {
+                self.postMessage(calendar);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+};
+
+self.createCalendar = function (args) {
+    var accessToken = args.access_token,
+        calendarSummary = args.calendar_summary;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://www.googleapis.com/calendar/v3/calendars', false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({summary: calendarSummary}));
+
+    if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+    } else {
+        try {
+            var calendar = JSON.parse(xhr.responseText);
+            self.postMessage(calendar);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+};
+
+self.downloadTasks = function (args) {
+    var accessToken = args.access_token;
+    var calendarId = args.calendar_id;
 
     var tasks = [];
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events', false);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events', false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.send();
 
     if (xhr.status != 200) {

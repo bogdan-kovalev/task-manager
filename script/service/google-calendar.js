@@ -4,14 +4,16 @@
 
 angular.module('tasklist-back')
     .service('GoogleCalendarService', function ($q, GoogleAPI) {
-        var _service = {};
+        var service = {};
 
-        var worker = window.Worker ? new Worker('./script/service/google-calendar-webworker.js') : null;
-        var _accessToken = null;
-        var _userInfo = null;
+        var accessToken = null;
+        var userInfo = null;
+        var calendarId = null;
+
+        var CALENDAR_SUMMARY = 'To-Do List Calendar';
 
         var SCOPES = [
-            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar',
             'https://www.googleapis.com/auth/plus.me'
         ];
 
@@ -19,9 +21,12 @@ angular.module('tasklist-back')
 
         function callWebWorker(cmd, args) {
             var defer = $q.defer();
-            if (worker) {
+            if (window.Worker) {
+                var worker = new Worker('./script/service/google-calendar-webworker.js');
+
                 worker.onmessage = function (event) {
                     defer.resolve(event.data);
+                    worker.terminate();
                 };
 
                 worker.postMessage({func: cmd, args: args});
@@ -36,7 +41,7 @@ angular.module('tasklist-back')
             if (GoogleAPI.auth) {
                 GoogleAPI.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: true}, function (authResult) {
                     if (authResult && !authResult.error) {
-                        _accessToken = authResult.access_token;
+                        accessToken = authResult.access_token;
                         defer.resolve();
                     } else {
                         consentAuth(defer);
@@ -51,7 +56,7 @@ angular.module('tasklist-back')
         function consentAuth(defer) {
             GoogleAPI.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: false}, function (authResult) {
                 if (authResult && !authResult.error) {
-                    _accessToken = authResult.access_token;
+                    accessToken = authResult.access_token;
                     defer.resolve();
                 } else {
                     defer.reject(authResult.error);
@@ -60,22 +65,33 @@ angular.module('tasklist-back')
         }
 
         function saveUserInfo() {
-            return callWebWorker('getUserInfo', _accessToken).then(function (userInfo) {
-                _userInfo = userInfo;
+            return callWebWorker('getUserInfo', {access_token: accessToken}).then(function (user_info) {
+                userInfo = user_info;
             });
         }
 
-        _service.auth = function () {
+        function getCalendar() {
+            return callWebWorker('getCalendar', {
+                access_token: accessToken,
+                calendar_summary: CALENDAR_SUMMARY
+            }).then(function (calendar) {
+                calendarId = calendar.id;
+            });
+        }
+
+        service.auth = function () {
             return fastAuth().then(saveUserInfo);
         };
 
-        _service.getUserInfo = function () {
-            return _userInfo;
+        service.getUserInfo = function () {
+            return userInfo;
         };
 
-        _service.fetchTasks = function () {
-            return callWebWorker('downloadTasks', _accessToken);
+        service.fetchTasks = function () {
+            return getCalendar().then(function () {
+                return callWebWorker('downloadTasks', {access_token: accessToken, calendar_id: calendarId});
+            });
         };
 
-        return _service;
+        return service;
     });
