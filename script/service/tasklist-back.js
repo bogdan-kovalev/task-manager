@@ -3,15 +3,14 @@
  */
 
 angular.module('tasklist-back', ['utils', 'users-back'])
-    .factory('Tasks', function (Utils, Users) {
+    .service('Tasks', function (Utils, Users, Storage) {
 
         function Model(storage) {
             this._storage = storage;
             var currentUser = Users.getCurrentUser();
             var model = this;
 
-            Model.prototype.addTask = function (description, author, assignee) {
-                var task = new TaskItem(description, author, assignee);
+            Model.prototype.addTask = function (task) {
                 model._storage.add(task);
             };
 
@@ -55,7 +54,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                 var ret = [];
                 model._storage.fetchTasks().forEach(function (task) {
                     ret.push({
-                        task: task.getDTO(),
+                        task: task.createDTO(),
                         access: model.getAccessFor(task)
                     });
                 });
@@ -65,7 +64,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             Model.prototype.getItem = function (id) {
                 var task = model._storage.getTaskByID(id);
                 return {
-                    task: task.getDTO(),
+                    task: task.createDTO(),
                     access: model.getAccessFor(task)
                 };
             };
@@ -81,12 +80,10 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
         }
 
+        return new Model(new Storage());
+    })
+    .factory('TaskItem', function (Utils) {
         function TaskItem(description, author, assignee) {
-            this._description = Utils.clone(description);
-            this._author = Utils.clone(author);
-            this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
-            this._timestamp = new Date().getTime();
-            this._status = Status.NEW;
 
             TaskItem.prototype.getDescription = function () {
                 return Utils.clone(this._description);
@@ -108,12 +105,12 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                 return Utils.clone(this._assignee);
             };
 
-            TaskItem.prototype.getCreationDate = function () {
-                return new Date(this._timestamp);
+            TaskItem.prototype.getTimestamp = function () {
+                return Utils.clone(this._timestamp);
             };
 
             TaskItem.prototype.getID = function () {
-                return Utils.clone(this._timestamp);
+                return Utils.clone(this._id);
             };
 
             TaskItem.prototype.getStatus = function () {
@@ -124,27 +121,43 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                 this._status = Utils.clone(status);
             };
 
-            TaskItem.prototype.getDTO = function () {
+            TaskItem.prototype.createDTO = function () {
                 return {
                     id: this.getID(),
                     description: this.getDescription(),
                     author: this.getAuthor(),
                     assignee: this.getAssignee(),
-                    creationDate: this.getCreationDate(),
+                    timestamp: this.getTimestamp(),
                     status: this.getStatus()
                 };
             };
 
-            TaskItem.prototype.restoreFrom = function (data) {
-                var dataClone = Utils.clone(data);
-                this._description = dataClone._description;
-                this._author = dataClone._author;
-                this._assignee = dataClone._assignee;
-                this._timestamp = dataClone._timestamp;
-                this._status = dataClone._status;
+            TaskItem.prototype.restoreFromDTO = function (dto) {
+                dto = Utils.clone(dto);
+                this._id = dto.id;
+                this._description = dto.description;
+                this._author = dto.author;
+                this._assignee = dto.assignee;
+                this._timestamp = dto.timestamp;
+                this._status = dto.status;
             };
+
+            /************ CONSTRUCTOR *************/
+            if (arguments.length == 1) {
+                this.restoreFromDTO(arguments[0]);
+            } else {
+                this._id = new Date().getTime();
+                this._description = Utils.clone(description);
+                this._author = Utils.clone(author);
+                this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
+                this._timestamp = this._id;
+                this._status = Status.NEW;
+            }
         }
 
+        return (TaskItem);
+    })
+    .factory('TaskList', function () {
         function TaskList(array) {
             var that = this;
 
@@ -178,6 +191,9 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             this.appendFromArray(array);
         }
 
+        return (TaskList);
+    })
+    .factory('Storage', function (TaskItem, TaskList) {
         function Storage(storageKey) {
             function tryRestoreFromLocal(localStorageKey) {
                 var restoredTasks = [];
@@ -188,8 +204,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                     try {
                         localTasksIDs = JSON.parse(window.localStorage.getItem(localStorageKey));
                         localTasksIDs.forEach(function (entry) {
-                            var task = new TaskItem();
-                            task.restoreFrom(JSON.parse(window.localStorage.getItem(entry)));
+                            var task = new TaskItem(JSON.parse(window.localStorage.getItem(entry)));
                             restoredTasks.push(task);
                         });
                     } catch (e) {
@@ -208,7 +223,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                 this._taskList[id] = task;
 
                 window.localStorage.setItem(this._storageKey, JSON.stringify(this._taskList.getIDs()));
-                window.localStorage.setItem(id, JSON.stringify(task));
+                window.localStorage.setItem(id, JSON.stringify(task.createDTO()));
             };
 
             Storage.prototype.delete = function (taskID) {
@@ -233,7 +248,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
 
             Storage.prototype.update = function (task) {
-                window.localStorage.setItem(task.getID(), JSON.stringify(task));
+                window.localStorage.setItem(task.getID(), JSON.stringify(task.createDTO()));
             };
 
             Storage.prototype.getTaskByID = function (id) {
@@ -241,6 +256,5 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
         }
 
-        var model = new Model(new Storage());
-        return model;
+        return (Storage);
     });

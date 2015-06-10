@@ -4,38 +4,76 @@
 
 angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
-    .controller('widgetController', function ($scope, $state, Tasks, Users, Utils) {
+    .controller('widgetController', function ($scope, $state, TaskItem, Tasks, Users, Utils, GoogleCalendarService) {
+
+        var synchronizationTimer;
 
         $scope.description = "";
         $scope.assignee = "";
-        $scope.assignedByMe = $state.is('tasks.assignedByMe');
+        $scope.properties = {
+            list: $state.current.name
+        };
 
-        $scope.items = Tasks.getItems();
-
-        $scope.items.forEach(function (item) {
-            item.hovered = false;
-            item.focused = false;
-        });
-
-        function updateItem(item) {
-            var index = $scope.items.lastIndexOf(item);
-            $scope.items[index] = Tasks.getItem(item.task.id);
+        function createTaskItem() {
+            return new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
         }
 
-        function updateItemAssignee(item) {
-            var index = $scope.items.lastIndexOf(item);
-            var validItem = Tasks.getItem(item.task.id);
-            $scope.items[index].task.assignee = validItem.task.assignee;
-            $scope.items[index].access = validItem.access;
+        function synchronizeWithGoogleCalendar() {
+            /* TODO refactor */
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.fetchTasks().then(function (DTOs) {
+                    if ($scope.selected) {
+                        return;
+                    }
+
+                    DTOs.forEach(function (DTO) {
+                        var task = new TaskItem(DTO);
+
+                        if (!Users.exists(task.getAuthor())) {
+                            Users.add(task.getAuthor());
+                        }
+
+                        Tasks.addTask(task);
+                    });
+
+                    $scope.items = Tasks.getItems();
+                    $scope.usersMap = Users.getUsersMap();
+                });
+            }
+            /**/
         }
 
-        function updateItemDescription(item) {
+        $scope.updateItem = function (item) {
             var index = $scope.items.lastIndexOf(item);
-            $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
-        }
+            if (index > -1) {
+                $scope.items[index] = Tasks.getItem(item.task.id);
+            }
+        };
+
+        $scope.updateItemAssignee = function (item) {
+            var index = $scope.items.lastIndexOf(item);
+            if (index > -1) {
+                var validItem = Tasks.getItem(item.task.id);
+                $scope.items[index].task.assignee = validItem.task.assignee;
+                $scope.items[index].access = validItem.access;
+            }
+        };
+
+        $scope.updateItemDescription = function (item) {
+            var index = $scope.items.lastIndexOf(item);
+            if (index > -1) {
+                $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
+            }
+        };
 
         $scope.addTask = function () {
-            Tasks.addTask($scope.description, Users.getCurrentUser(), $scope.assignee);
+            var task = createTaskItem();
+            Tasks.addTask(task);
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.addTask(task.createDTO());
+            }
+
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
@@ -43,21 +81,29 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         $scope.deleteTask = function (item) {
             Tasks.deleteTask(item.task.id);
             Utils.remove($scope.items, item);
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.deleteTask(item.task.id);
+            }
         };
 
         $scope.finishTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.FINISHED);
-            updateItem(item);
+            $scope.updateItem(item);
         };
 
         $scope.reopenTask = function (item) {
             Tasks.changeTaskStatus(item.task.id, Status.REOPENED);
-            updateItem(item);
+            $scope.updateItem(item);
         };
 
         $scope.saveDescription = function (item) {
             Tasks.changeTaskDescription(item.task.id, item.task.description);
-            updateItemDescription(item);
+            $scope.updateItemDescription(item);
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.updateTask(item.task);
+            }
         };
 
         $scope.restoreDescription = function (item) {
@@ -66,42 +112,59 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         $scope.reassignTask = function (item) {
             Tasks.assignTask(item.task.id, item.task.assignee);
-            updateItemAssignee(item);
+            $scope.updateItemAssignee(item);
         };
 
-        $scope.onFocus = function (item) {
-            if (!item.focused) {
+        $scope.select = function (item) {
+            $scope.selected = item;
+            if (item) {
                 item.descriptionBkp = item.task.description;
-                item.focused = true;
             }
         };
 
-        $scope.$watch('assignedByMe', function () {
-            if ($scope.assignedByMe) {
-                $state.transitionTo('tasks.assignedByMe');
-            } else {
-                $state.transitionTo('tasks.all');
-            }
+        $scope.startTimer = function () {
+            synchronizationTimer = setTimeout(function tick() {
+                synchronizeWithGoogleCalendar();
+                synchronizationTimer = setTimeout(tick, 5000);
+            }, 5000);
+        };
+
+        $scope.stopTimer = function () {
+            clearTimeout(synchronizationTimer);
+        };
+
+        $scope.$watch('properties.list', function () {
+            $state.go($scope.properties.list);
         });
 
+        $scope.items = Tasks.getItems();
+        $scope.usersMap = Users.getUsersMap();
+
+        $scope.startTimer();
     })
 
     .controller('itemsController', function ($scope, $state, Users) {
-        if ($state.is('tasks.assignedByMe')) {
-            $scope.tasksFilter = function (value) {
-                var currentUser = Users.getCurrentUser();
-                return value.task.author == currentUser && value.task.assignee != currentUser;
-            };
-        } else if ($state.is('tasks.all')) {
+        /* TODO refactor */
+        var currentUser = Users.getCurrentUser();
+        if ($state.is('tasks.all')) {
             $scope.tasksFilter = function () {
                 return true;
             };
+        } else if ($state.is('tasks.my')) {
+            $scope.tasksFilter = function (value) {
+                return value.task.author == currentUser;
+            };
+        } else if ($state.is('tasks.assignedByMe')) {
+            $scope.tasksFilter = function (value) {
+                return value.task.author == currentUser && value.task.assignee != currentUser;
+            };
         }
+        /**/
     })
 
     .filter('datetime', function ($filter) {
-        return function (date) {
-            return date == null ? "" : $filter('date')(date, 'MMM dd yyyy - HH:mm:ss');
+        return function (timestamp) {
+            return timestamp == null ? "" : $filter('date')(new Date(timestamp), 'MMM dd yyyy - HH:mm:ss');
         };
     })
 
@@ -125,37 +188,45 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                     return 1;
                 }
 
-                return a.task.id - b.task.id; // id is timestamp
+                return a.task.timestamp - b.task.timestamp;
             });
 
             return items;
         }
     })
 
-    .directive('tdUserExist', ['Users', function (Users) {
+    .directive('tdExistentUser', function (Users) {
         return {
             require: '?ngModel',
             link: function (scope, elem, attrs, ctrl) {
                 scope.$watch(elem.attr('ng-model'), function (user) {
-                    ctrl.$setValidity('tdUserExist', Users.isExistent(user));
+                    ctrl.$setValidity('tdExistentUser', Users.exists(user));
                 });
             }
         }
-    }])
+    })
 
     .directive('tdAutoRows', function () {
         function autoRows(textarea) {
-            textarea.attr('rows', textarea.val().split(/\r\n|\r|\n/).length);
-            while (textarea.height() < textarea.get(0).scrollHeight - 10) {
-                textarea.attr('rows', +textarea.attr('rows') + 1);
-            }
+            textarea.css('height', 'auto');
+            textarea.css('height', textarea.get(0).scrollHeight + 'px');
         }
 
         return {
-            link: function (scope, elem, attrs, ctrl) {
-                scope.$watch(elem.attr('ng-model'), function (user) {
+            link: function (scope, elem) {
+                scope.$watch(elem.attr('ng-model'), function () {
                     autoRows(elem);
                 });
+            }
+        }
+    })
+
+    .directive('tdGoogleAccount', function ($state, Users) {
+        return {
+            link: function () {
+                Users.loginToGoogle().then(function () {
+                    $state.go('tasks.my');
+                })
             }
         }
     });
