@@ -3,10 +3,10 @@
  */
 
 function taskFromEvent(event) {
-    var params = getParams(event.description);
+    var params = getParams(event);
     return {
         id: event.id,
-        description: withoutParams(event.description),
+        description: event.description ? withoutParams(event.description) : event.summary,
         author: event.creator.displayName,
         assignee: params.assignee,
         timestamp: new Date(event.start.dateTime),
@@ -34,11 +34,21 @@ function withoutParams(description) {
     return description.split('\n\nPARAMETERS\n')[0];
 }
 
-function getParams(description) {
-    var params = description.split('\n\nPARAMETERS\n')[1];
+function getParams(event) {
+    var assignee, status;
+
+    try {
+        var params = event.description.split('\n\nPARAMETERS\n')[1];
+        assignee = params.split('assignee ')[1].split('\n')[0];
+        status = params.split('status ')[1].split('\n')[0];
+    } catch (e) {
+        assignee = event.creator.displayName;
+        status = 'new';
+    }
+
     return {
-        assignee: params.split('assignee ')[1].split('\n')[0],
-        status: params.split('status ')[1].split('\n')[0]
+        assignee: assignee,
+        status: status
     }
 }
 
