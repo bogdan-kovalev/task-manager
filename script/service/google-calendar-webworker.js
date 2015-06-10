@@ -150,6 +150,28 @@ self.addTask = function (args) {
     }
 };
 
+self.updateTask = function (args) {
+    var accessToken = args.access_token;
+    var calendarId = args.calendar_id;
+    var task = args.task;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events/' + task.id, false);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(eventFromTask(task)));
+
+    if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+    } else {
+        try {
+            self.postMessage(true);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+};
+
 self.deleteTask = function (args) {
     var accessToken = args.access_token;
     var calendarId = args.calendar_id;

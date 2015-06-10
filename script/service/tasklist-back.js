@@ -85,17 +85,6 @@ angular.module('tasklist-back', ['utils', 'users-back'])
     .factory('TaskItem', function (Utils) {
         function TaskItem(description, author, assignee) {
 
-            if (arguments.length == 1) {
-                this.restoreFromDTO(arguments[0]);
-            } else {
-                this._id = new Date().getTime();
-                this._description = Utils.clone(description);
-                this._author = Utils.clone(author);
-                this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
-                this._timestamp = this._id;
-                this._status = Status.NEW;
-            }
-
             TaskItem.prototype.getDescription = function () {
                 return Utils.clone(this._description);
             };
@@ -152,6 +141,18 @@ angular.module('tasklist-back', ['utils', 'users-back'])
                 this._timestamp = dto.timestamp;
                 this._status = dto.status;
             };
+
+            /************ CONSTRUCTOR *************/
+            if (arguments.length == 1) {
+                this.restoreFromDTO(arguments[0]);
+            } else {
+                this._id = new Date().getTime();
+                this._description = Utils.clone(description);
+                this._author = Utils.clone(author);
+                this._assignee = Utils.clone(assignee && assignee != '' ? assignee : author);
+                this._timestamp = this._id;
+                this._status = Status.NEW;
+            }
         }
 
         return (TaskItem);

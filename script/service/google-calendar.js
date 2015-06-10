@@ -97,6 +97,10 @@ angular.module('tasklist-back')
             callWebWorker('addTask', {access_token: accessToken, calendar_id: calendarId, task: taskDTO});
         };
 
+        service.updateTask = function (taskDTO) {
+            callWebWorker('updateTask', {access_token: accessToken, calendar_id: calendarId, task: taskDTO});
+        };
+
         service.deleteTask = function (taskId) {
             callWebWorker('deleteTask', {access_token: accessToken, calendar_id: calendarId, task_id: taskId});
         };
