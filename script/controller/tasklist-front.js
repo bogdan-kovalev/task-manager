@@ -16,16 +16,15 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
         /* TODO refactor */
         if (!Users.isLocalUser()) {
-            GoogleCalendarService.fetchTasks().then(function (tasks) {
-                tasks.forEach(function (task) {
-                    var ti = new TaskItem();
-                    ti.restoreFrom(task);
+            GoogleCalendarService.fetchTasks().then(function (DTOs) {
+                DTOs.forEach(function (DTO) {
+                    var task = new TaskItem(DTO);
 
-                    if (!Users.exists(ti.getAuthor())) {
-                        Users.add(ti.getAuthor());
+                    if (!Users.exists(task.getAuthor())) {
+                        Users.add(task.getAuthor());
                     }
 
-                    $scope.addTask(ti);
+                    Tasks.addTask(task);
                 });
                 $scope.items = Tasks.getItems();
             });
@@ -51,25 +50,21 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
         };
 
-        $scope.uiAddTask = function () {
-            var task = $scope.createTaskItem();
-            $scope.addTask(task);
+        $scope.addTask = function () {
+            var task = createTaskItem();
+            Tasks.addTask(task);
 
             if (!Users.isLocalUser()) {
-                GoogleCalendarService.addTask(task.getDTO());
+                GoogleCalendarService.addTask(task.createDTO());
             }
 
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
 
-        $scope.addTask = function (task) {
-            Tasks.addTask(task);
-        };
-
-        $scope.createTaskItem = function () {
+        function createTaskItem() {
             return new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
-        };
+        }
 
         $scope.deleteTask = function (item) {
             Tasks.deleteTask(item.task.id);
@@ -143,8 +138,8 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
     })
 
     .filter('datetime', function ($filter) {
-        return function (date) {
-            return date == null ? "" : $filter('date')(date, 'MMM dd yyyy - HH:mm:ss');
+        return function (timestamp) {
+            return timestamp == null ? "" : $filter('date')(new Date(timestamp), 'MMM dd yyyy - HH:mm:ss');
         };
     })
 

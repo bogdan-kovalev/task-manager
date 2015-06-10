@@ -8,7 +8,7 @@
          ng-mouseleave="item.hovered = false; showingDeleteConfirmation = false;">
         <form name="taskItemForm" novalidate>
             <div class="task-properties">
-                <span class="label label-info">{{item.task.creationDate | datetime }}</span>
+                <span class="label label-info">{{item.task.timestamp | datetime }}</span>
                 <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>
                 <input name="assignee" list="users-datalist" class='assign inline-edit input-sm' placeholder="Assign to"

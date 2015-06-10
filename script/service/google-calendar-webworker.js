@@ -4,19 +4,19 @@
 
 function taskFromEvent(event) {
     return {
-        _description: event.summary,
-        _author: event.creator.displayName,
-        _assignee: event.creator.displayName,
-        _timestamp: +event.id,
-        _status: 'new'
+        id: +event.id,
+        description: event.summary,
+        author: event.creator.displayName,
+        assignee: event.creator.displayName,
+        timestamp: new Date(event.start.dateTime),
+        status: 'new'
     };
 }
 
 function eventFromTask(task) {
-    console.log(task.id);
     return {
         summary: task.description,
-        start: {dateTime: task.creationDate.toJSON()},
+        start: {dateTime: (new Date(task.timestamp)).toJSON()},
         end: {dateTime: (new Date()).toJSON()},
         id: task.id
     };
@@ -117,7 +117,6 @@ self.downloadTasks = function (args) {
 
             for (var i = 0; i < items.length; ++i) {
                 var task = taskFromEvent(items[i]);
-                console.log(task._timestamp);
                 tasks.push(taskFromEvent(items[i]));
             }
 
