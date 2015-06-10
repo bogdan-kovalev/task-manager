@@ -4,7 +4,7 @@
 
 function taskFromEvent(event) {
     return {
-        id: +event.id,
+        id: event.id,
         description: event.summary,
         author: event.creator.displayName,
         assignee: event.creator.displayName,
@@ -116,7 +116,6 @@ self.downloadTasks = function (args) {
             var items = JSON.parse(xhr.responseText).items;
 
             for (var i = 0; i < items.length; ++i) {
-                var task = taskFromEvent(items[i]);
                 tasks.push(taskFromEvent(items[i]));
             }
 

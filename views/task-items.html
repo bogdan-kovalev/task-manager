@@ -4,8 +4,8 @@
     <div ng-repeat="item in items | tasksOrder | filter: tasksFilter"
          class="task-item {{item.task.status}} well well-sm"
          id="{{item.task.id}}"
-         ng-mouseenter="item.hovered = true;"
-         ng-mouseleave="item.hovered = false; showingDeleteConfirmation = false;">
+         ng-mouseenter="hovered = true;"
+         ng-mouseleave="hovered = false; deleteConfirmation = false;">
         <form name="taskItemForm" novalidate>
             <div class="task-properties">
                 <span class="label label-info">{{item.task.timestamp | datetime }}</span>
@@ -27,31 +27,31 @@
             <textarea required name="description" class="inline-edit input-sm" rows=1 td-auto-rows
                       ng-model="item.task.description"
                       ng-trim="false"
-                      ng-focus="onFocus(item);"
-                      ng-blur="onBlur(item);"
+                      ng-focus="focused = true; select(item); stopTimer()"
+                      ng-blur="item.descriptionBkp == item.task.description ? focused = false : ''; select(null); startTimer()"
                       ng-readonly="!item.access.edit"></textarea>
 
                 <button type="submit" class="btn btn-success btn-sm save-btn"
-                        ng-click="saveDescription(item); item.focused = false;"
-                        ng-show="item.access.edit && item.focused">Save
+                        ng-click="saveDescription(item); focused = false;"
+                        ng-show="item.access.edit && focused">Save
                 </button>
                 <button type="submit" class="btn btn-default btn-sm cancel-btn"
-                        ng-click="restoreDescription(item); item.focused = false;"
-                        ng-show="item.access.edit && item.focused">Cancel
+                        ng-click="restoreDescription(item); focused = false;"
+                        ng-show="item.access.edit && focused">Cancel
                 </button>
                 <div class="pull-right">
                     <button type="submit" class="btn btn-default btn-sm reopen-btn" ng-click="reopenTask(item);"
-                            ng-show="item.access.reopen && item.hovered">
+                            ng-show="item.access.reopen && hovered">
                         <span class="glyphicon glyphicon-retweet"></span> Re-open
                     </button>
                     <button type="submit" class="btn btn-default btn-sm finish-btn" ng-click="finishTask(item);"
-                            ng-show="item.access.finish && item.hovered && !item.focused">
+                            ng-show="item.access.finish && hovered && !focused">
                         <span class="glyphicon glyphicon-ok"></span> Finish
                     </button>
                     <button type="submit" class="btn btn-danger btn-sm delete-btn"
-                            ng-click="showingDeleteConfirmation ? deleteTask(item) : showingDeleteConfirmation=true"
-                            ng-show="item.access.delete && item.hovered">
-                        <span class="glyphicon glyphicon-remove"></span> {{showingDeleteConfirmation ? 'Confirm' :
+                            ng-click="deleteConfirmation ? deleteTask(item) : deleteConfirmation=true"
+                            ng-show="item.access.delete && hovered">
+                        <span class="glyphicon glyphicon-remove"></span> {{deleteConfirmation ? 'Confirm' :
                         'Delete'}}
                     </button>
                 </div>

@@ -6,32 +6,42 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
 
     .controller('widgetController', function ($scope, $state, TaskItem, Tasks, Users, Utils, GoogleCalendarService) {
 
+        var synchronizationTimer;
+
         $scope.description = "";
         $scope.assignee = "";
         $scope.properties = {
             list: $state.current.name
         };
 
-        $scope.items = Tasks.getItems();
+        function createTaskItem() {
+            return new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
+        }
 
-        /* TODO refactor */
-        if (!Users.isLocalUser()) {
-            GoogleCalendarService.fetchTasks().then(function (DTOs) {
-                DTOs.forEach(function (DTO) {
-                    var task = new TaskItem(DTO);
-
-                    if (!Users.exists(task.getAuthor())) {
-                        Users.add(task.getAuthor());
+        function synchronizeWithGoogleCalendar() {
+            /* TODO refactor */
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.fetchTasks().then(function (DTOs) {
+                    if ($scope.selected) {
+                        return;
                     }
 
-                    Tasks.addTask(task);
-                });
-                $scope.items = Tasks.getItems();
-            });
-        }
-        /**/
+                    DTOs.forEach(function (DTO) {
+                        var task = new TaskItem(DTO);
 
-        $scope.usersMap = Users.getUsersMap();
+                        if (!Users.exists(task.getAuthor())) {
+                            Users.add(task.getAuthor());
+                        }
+
+                        Tasks.addTask(task);
+                    });
+
+                    $scope.items = Tasks.getItems();
+                    $scope.usersMap = Users.getUsersMap();
+                });
+            }
+            /**/
+        }
 
         $scope.updateItem = function (item) {
             var index = $scope.items.lastIndexOf(item);
@@ -67,10 +77,6 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             $scope.description = "";
             $scope.items = Tasks.getItems();
         };
-
-        function createTaskItem() {
-            return new TaskItem($scope.description, Users.getCurrentUser(), $scope.assignee);
-        }
 
         $scope.deleteTask = function (item) {
             Tasks.deleteTask(item.task.id);
@@ -109,23 +115,32 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             $scope.updateItemAssignee(item);
         };
 
-        $scope.onFocus = function (item) {
-            if (!item.focused) {
+        $scope.select = function (item) {
+            $scope.selected = item;
+            if (item) {
                 item.descriptionBkp = item.task.description;
-                item.focused = true;
             }
         };
 
-        $scope.onBlur = function (item) {
-            if (item.descriptionBkp == item.task.description) {
-                item.focused = false;
-            }
+        $scope.startTimer = function () {
+            synchronizationTimer = setTimeout(function tick() {
+                synchronizeWithGoogleCalendar();
+                synchronizationTimer = setTimeout(tick, 5000);
+            }, 5000);
+        };
+
+        $scope.stopTimer = function () {
+            clearTimeout(synchronizationTimer);
         };
 
         $scope.$watch('properties.list', function () {
             $state.go($scope.properties.list);
         });
 
+        $scope.items = Tasks.getItems();
+        $scope.usersMap = Users.getUsersMap();
+
+        $scope.startTimer();
     })
 
     .controller('itemsController', function ($scope, $state, Users) {
@@ -173,7 +188,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                     return 1;
                 }
 
-                return a.task.id - b.task.id; // id is timestamp
+                return a.task.timestamp - b.task.timestamp;
             });
 
             return items;
