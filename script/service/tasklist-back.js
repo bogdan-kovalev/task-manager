@@ -195,51 +195,18 @@ angular.module('tasklist-back', ['utils', 'users-back'])
     })
     .factory('Storage', function (TaskItem, TaskList) {
         function Storage(storageKey) {
-            function tryRestoreFromLocal(localStorageKey) {
-                var restoredTasks = [];
-                var localTasksIDs = [];
-                if (window.localStorage.getItem(localStorageKey) == undefined) {
-                    window.localStorage.setItem(localStorageKey, "");
-                } else {
-                    try {
-                        localTasksIDs = JSON.parse(window.localStorage.getItem(localStorageKey));
-                        localTasksIDs.forEach(function (entry) {
-                            var task = new TaskItem(JSON.parse(window.localStorage.getItem(entry)));
-                            restoredTasks.push(task);
-                        });
-                    } catch (e) {
-                        //ignored
-                    }
-                }
-                return {tasksIDs: localTasksIDs, tasks: restoredTasks};
-            }
-
-            this._storageKey = storageKey ? storageKey : 'task-list-local-storage';
-            var data = tryRestoreFromLocal(this._storageKey);
-            this._taskList = new TaskList(data.tasks);
+            this._taskList = new TaskList();
 
             Storage.prototype.add = function (task) {
                 var id = task.getID();
                 this._taskList[id] = task;
-
-                window.localStorage.setItem(this._storageKey, JSON.stringify(this._taskList.getIDs()));
-                window.localStorage.setItem(id, JSON.stringify(task.createDTO()));
             };
 
             Storage.prototype.delete = function (taskID) {
                 delete this._taskList[taskID];
-
-                window.localStorage.setItem(this._storageKey, JSON.stringify(this._taskList.getIDs()));
-                window.localStorage.removeItem(taskID);
             };
 
             Storage.prototype.clear = function () {
-                this._taskList.getIDs().forEach(function (key) {
-                    window.localStorage.removeItem(key);
-                });
-
-                window.localStorage.removeItem(this._storageKey);
-
                 this._taskList = new TaskList();
             };
 
@@ -248,7 +215,7 @@ angular.module('tasklist-back', ['utils', 'users-back'])
             };
 
             Storage.prototype.update = function (task) {
-                window.localStorage.setItem(task.getID(), JSON.stringify(task.createDTO()));
+                /* do nothing*/
             };
 
             Storage.prototype.getTaskByID = function (id) {

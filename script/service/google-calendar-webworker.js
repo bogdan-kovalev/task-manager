@@ -3,24 +3,43 @@
  */
 
 function taskFromEvent(event) {
+    var params = getParams(event.description);
     return {
         id: event.id,
-        description: event.description,
+        description: withoutParams(event.description),
         author: event.creator.displayName,
-        assignee: event.creator.displayName,
+        assignee: params.assignee,
         timestamp: new Date(event.start.dateTime),
-        status: 'new'
+        status: params.status
     };
 }
 
 function eventFromTask(task) {
     return {
         summary: task.description.split('\n')[0],
-        description: task.description,
+        description: withParams(task.description, task),
         start: {dateTime: (new Date(task.timestamp)).toJSON()},
         end: {dateTime: (new Date()).toJSON()},
         id: task.id
     };
+}
+
+function withParams(description, task) {
+    return description + '\n\nPARAMETERS\n' +
+        '@assignee ' + task.assignee +
+        '\n@status ' + task.status;
+}
+
+function withoutParams(description) {
+    return description.split('\n\nPARAMETERS\n')[0];
+}
+
+function getParams(description) {
+    var params = description.split('\n\nPARAMETERS\n')[1];
+    return {
+        assignee: params.split('assignee ')[1].split('\n')[0],
+        status: params.split('status ')[1].split('\n')[0]
+    }
 }
 
 self.getUserInfo = function (args) {

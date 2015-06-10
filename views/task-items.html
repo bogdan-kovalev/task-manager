@@ -12,7 +12,9 @@
                 <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>
                 <input name="assignee" list="users-datalist" class='assign inline-edit input-sm' placeholder="Assign to"
-                       ng-model="item.task.assignee" required td-existent-user>
+                       ng-model="item.task.assignee" required td-existent-user
+                       ng-focus="select(item); stopTimer()"
+                       ng-blur="select(null); startTimer()">
                 <span class="error">
                     User does not exist
                 </span>
