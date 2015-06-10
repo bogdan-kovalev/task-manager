@@ -5,7 +5,7 @@
 function taskFromEvent(event) {
     return {
         id: event.id,
-        description: event.summary,
+        description: event.description,
         author: event.creator.displayName,
         assignee: event.creator.displayName,
         timestamp: new Date(event.start.dateTime),
@@ -15,7 +15,8 @@ function taskFromEvent(event) {
 
 function eventFromTask(task) {
     return {
-        summary: task.description,
+        summary: task.description.split('\n')[0],
+        description: task.description,
         start: {dateTime: (new Date(task.timestamp)).toJSON()},
         end: {dateTime: (new Date()).toJSON()},
         id: task.id
