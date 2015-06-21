@@ -1,7 +1,7 @@
 <div class="task-items-wrapper" ng-controller="itemsController">
     <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
-    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter"
+    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter track by item.task.id"
          class="task-item {{item.task.status}} well well-sm"
          id="{{item.task.id}}"
          ng-mouseenter="hovered = true;"
@@ -12,7 +12,9 @@
                 <span class="label label-default">{{item.task.status}}</span>
                 <b>Assigned to:</b>
                 <input name="assignee" list="users-datalist" class='assign inline-edit input-sm' placeholder="Assign to"
-                       ng-model="item.task.assignee" required td-existent-user>
+                       ng-model="item.task.assignee" required td-existent-user
+                       ng-focus="select(item); stopTimer()"
+                       ng-blur="select(null); startTimer()">
                 <span class="error">
                     User does not exist
                 </span>

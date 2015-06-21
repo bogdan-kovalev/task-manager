@@ -48,6 +48,10 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
             if (index > -1) {
                 $scope.items[index] = Tasks.getItem(item.task.id);
             }
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.updateTask($scope.items[index].task);
+            }
         };
 
         $scope.updateItemAssignee = function (item) {
@@ -57,12 +61,20 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
                 $scope.items[index].task.assignee = validItem.task.assignee;
                 $scope.items[index].access = validItem.access;
             }
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.updateTask($scope.items[index].task);
+            }
         };
 
         $scope.updateItemDescription = function (item) {
             var index = $scope.items.lastIndexOf(item);
             if (index > -1) {
                 $scope.items[index].task.description = Tasks.getItem(item.task.id).task.description;
+            }
+
+            if (!Users.isLocalUser()) {
+                GoogleCalendarService.updateTask($scope.items[index].task);
             }
         };
 
@@ -100,10 +112,6 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         $scope.saveDescription = function (item) {
             Tasks.changeTaskDescription(item.task.id, item.task.description);
             $scope.updateItemDescription(item);
-
-            if (!Users.isLocalUser()) {
-                GoogleCalendarService.updateTask(item.task);
-            }
         };
 
         $scope.restoreDescription = function (item) {
@@ -138,8 +146,7 @@ angular.module('tasklist-front', ['tasklist-back', 'users-back', 'utils'])
         });
 
         $scope.items = Tasks.getItems();
-        $scope.usersMap = Users.getUsersMap();
-
+        synchronizeWithGoogleCalendar();
         $scope.startTimer();
     })
 
