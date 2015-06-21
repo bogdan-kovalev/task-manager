@@ -1,7 +1,7 @@
 <div class="task-items-wrapper" ng-controller="itemsController">
     <div ng-show='items.length == 0' class="no-tasks">There are no tasks available to you yet</div>
 
-    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter"
+    <div ng-repeat="item in items | tasksOrder | filter: tasksFilter track by item.task.id"
          class="task-item {{item.task.status}} well well-sm"
          id="{{item.task.id}}"
          ng-mouseenter="hovered = true;"
